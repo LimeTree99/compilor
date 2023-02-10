@@ -1,3 +1,5 @@
+#include "dfa.h"
+
 #define NUM_KEYWORDS 16
 
 
