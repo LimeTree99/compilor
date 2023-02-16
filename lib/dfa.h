@@ -1,3 +1,7 @@
+/*! \file dfa.h
+ \brief For creating ad traversing DFA structures.
+*/
+
 #include "string.h"
 #include <stdio.h>
 

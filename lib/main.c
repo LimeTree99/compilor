@@ -1,8 +1,19 @@
-/*
-Author: Erin Hemsley
-ID:     180109120
---------------------
-main() function held here
+/*! \mainpage Compilor Documentation
+ *
+ * \section intro_sec Introduction
+ *
+ * This is the introduction.
+ *
+ * \section Files
+ *
+ * \subsection 
+ * \link files \endlink
+ * 
+ * 
+ */
+
+/*! \file main.c
+ \brief main() and comand line input handeling.
 */
 
 
@@ -42,6 +53,11 @@ void check_file_name(char *name){
 
 }
 
+//this function needs to go through the file and remove 
+//concurrent spaces, /n, and /t chars
+//do in a stream
+
+//unicode is not allowed! only ascii!
 void lexer(FILE *fh){
     char buff[2][BUFF_SIZE];
     int select_buff = 0;
@@ -76,7 +92,10 @@ void lexer(FILE *fh){
                 end = true;
             }
         }else{
-            //here goes the acctual lexer code 
+            //here is a stream of all chars except '\0'
+            //need to impliment a way of holing off on pulling new buff
+            //when there is a token split between two buffers
+
             printf("%c", curr);
         }
         cursor++;

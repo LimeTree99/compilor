@@ -1,12 +1,6 @@
 #include "string.h"
 
-/*
-return bool
-    if str1 matches str2 true else false
--------------
-char *str1, *str2
-    the strings to be compared
-*/
+
 bool str_cmp(char *str1, char *str2){
     int i = 0;
     char c1 = str1[0];
@@ -23,13 +17,7 @@ bool str_cmp(char *str1, char *str2){
     }
     return same;
 }
-/*
-return int
-    length of string NOT including null ternination
-------------
-char *str
-    string to be counted
-*/
+
 int str_len(char *str){
     char c = str[0];
     int i=0;
@@ -40,14 +28,6 @@ int str_len(char *str){
     return i;
 }
 
-/*
-return char *
-    a pointer to the string
-    must use str_free() to dereference
-------------
-char *str
-    the string to copy over 
-*/
 char *str_copy(char *str){
     int len = str_len(str) + 1;
     char *re_str = (char *)malloc(len * sizeof(char));
@@ -59,5 +39,6 @@ char *str_copy(char *str){
 }
 
 bool str_free(char *str){
-    
+    free(str);  //this is probably incorrect
+    return true;
 }

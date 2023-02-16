@@ -1,3 +1,7 @@
+/*! \file build.h
+ \brief Defines static parts of the compilor.
+*/
+
 #include "dfa.h"
 
 #define NUM_KEYWORDS 16
