@@ -1,16 +1,15 @@
 /*! \mainpage Compilor Documentation
- *
- * \section intro_sec Introduction
- *
- * This is the introduction.
- *
- * \section Files
- *
- * \subsection 
- * \link files \endlink
- * 
- * 
- */
+
+ \section intro_sec Introduction
+
+ This is the introduction.
+
+ \section a Things to do
+
+ 1. fix up the main.lexer() so it doesn't bother with '\0' (this is now the job of new_key())
+ 2. Complete dfa.next_key()
+
+*/
 
 /*! \file main.c
  \brief main() and comand line input handeling.
@@ -29,7 +28,7 @@
 #define COLOR_RED    "\x1b[31m"
 #define COLOR_GREEN  "\x1b[32m"
 
-#define BUFF_SIZE 100
+#define BUFF_SIZE 100   //!currently no safeguard if token is longer than BUFF_SIZE
 
 
 
@@ -125,11 +124,12 @@ int main(int argc, char * argv[]){
     printf("\n--------------\n");
     printf("DNF testing:\n");
     printf("--------------\n");
-    struct Dfa *eq = dfa_new(10);
-    int arr[] = {'>',1,'=',3};
-    set_node(eq, 0, "le", arr, 4);
 
-    printf("key1: %s\n", keywords[1]);
+
+
+    struct Dfa *dfa = generate_lex1();
+    printf("dfa: %d\n", *(dfa->token_table + (20 * CHARSET_SIZE) + 'a'));
+
 
     printf("\n--------------\n");
     printf("end\n");

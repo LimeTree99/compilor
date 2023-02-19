@@ -3,9 +3,7 @@
  This is a replacement for the standard library functions.
 */
 
-
 #include <stdlib.h>
-
 #include "general.h"
 
 //! find if two strings are the same
