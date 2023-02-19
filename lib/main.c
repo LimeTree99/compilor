@@ -7,6 +7,7 @@
  \section a Things to do
 
  1. fix up the main.lexer() so it doesn't bother with '\0' (this is now the job of new_key())
+ 1.5 figure out how to addvance the buff 
  2. Complete dfa.next_key()
 
 */

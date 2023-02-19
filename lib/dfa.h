@@ -27,7 +27,12 @@ struct Symbol{
 */
 struct Dfa *dfa_new(int max_nodes);
 
+//! generates and fills token table for use in lexing
+/*!
+ \returns dfa 
+*/
 struct Dfa *generate_lex1();
+
 
 bool dfa_free(struct Dfa *dfa);
 
