@@ -6,17 +6,26 @@
 
  \section a Things to do
 
- 
  1. Complete dfa.next_key()
-    -
- 2. get the symbol and put in table. do this in lexer() func
+    -currently basic functionality works
+    -still have to go through and fix memory leeks (I'm sure they're there)
+    -still need panic mode
+ 2. get the symbol and put in table.
+    -do this in lexer() func
+    -read each symbol to file
+    -put in some kind of storage, linked list?? (do this later)
+ 3. impliment panic mode
+    -look up what panic mode is
+ 4. if I feel like it
+    -let underscores be in variables (change in token table)
+
 
  \section Use
+ \
+    SYNTAX
+        comp [file]
 
- SYNTAX
-    comp [file]
-
-    file: source code text file ending in .cp
+        file: source code text file ending in .cp
 
 
 */
@@ -57,63 +66,11 @@ void check_file_name(char *name){
 
 }
 
-//this function needs to go through the file and remove 
-//concurrent spaces, /n, and /t chars
-//do in a stream
-
-//unicode is not allowed! only ascii!
-
-/*
-void lexer(FILE *fh){
-    char buff[2][BUFF_SIZE];
-    int select_buff = 0;
-    int cursor = 0;
-    int n = 0;
-    char curr;
-    bool end = false;
-
-    int num_read;
-    
-    
-
-    fread(buff[0], sizeof(char), BUFF_SIZE-1, fh);
-    buff[0][BUFF_SIZE-1] = '\0';
-    curr = buff[0][0];
-
-    while (!end){
-        if (curr == '\0'){
-            if ((n+1) % BUFF_SIZE == 0){
-                cursor = -1;
-                if (select_buff == 0) {
-                    select_buff = 1;
-                }else{
-                    select_buff = 0;
-                }
-                num_read = fread(buff[select_buff], sizeof(char), BUFF_SIZE-1, fh);
-                
-                buff[select_buff][num_read] = '\0';
-                
-                
-            }else{
-                end = true;
-            }
-        }else{
-            //here is a stream of all chars except '\0'
-            //need to impliment a way of holing off on pulling new buff
-            //when there is a token split between two buffers
-
-            printf("%c", curr);
-        }
-        cursor++;
-        n++;
-        curr = buff[select_buff][cursor];
-    }
-    
-}*/
-
 void lexer(FILE *fh){
     char buff[2][BUFF_SIZE];
     struct Dfa *dfa = generate_lex1();
+
+    Symbol sym;
     
     int num_read;
     int hold = 0;
@@ -144,21 +101,27 @@ void lexer(FILE *fh){
         }else if (**curr == ' ' || **curr == '\t'){
             *curr += 1;
         }else{
+            
+            sym = next_key(dfa, &(buff[0][0]), curr);
+            
+            printf("lex: <%s> token: <%s>\n", sym.lexeme, sym.token);
+            
 
-            next_key(dfa, &(buff[0][0]), curr);
-            printf("-%c-\n", **curr);
             if (*buff_select == 0 && (int)*curr - (int)&(buff[0][0]) >= BUFF_SIZE ||
                 *buff_select == 1 && (int)*curr - (int)&(buff[0][0]) < BUFF_SIZE){
+                
 
                 *buff_select = !(*buff_select);
                 num_read = fread(buff[*buff_select], sizeof(char), BUFF_SIZE-1, fh);
                 buff[*buff_select][num_read] = '\0';
             }
             
+            
+            
         }
         
 
-        printf("char: %c buff_select: %d cursor:%d line: %d\n", **curr, *buff_select, ((int)*curr - (int)&(buff[0][0]) + 1) % BUFF_SIZE, line_num);
+        //printf("char: %c buff_select: %d cursor:%d line: %d\n", **curr, *buff_select, ((int)*curr - (int)&(buff[0][0]) + 1) % BUFF_SIZE, line_num);
 
     }
 

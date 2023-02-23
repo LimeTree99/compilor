@@ -38,6 +38,20 @@ char *str_copy(char *str){
     return re_str;
 }
 
+
+char *str_cp_sec(char *start, char *end){
+    int len = (int)end - (int)start + 1;
+    char *re_str = (char *)malloc(len * sizeof(char));
+
+    for (int i=0; i < len-1; i++){
+        *(re_str + i) = *(start + i);
+    }
+
+    *(re_str + len - 1) = '\0';
+
+    return re_str;
+}
+
 bool str_free(char *str){
     free(str);  //this is probably incorrect
     return true;

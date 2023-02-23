@@ -15,9 +15,9 @@ struct Dfa{
     int max_nodes;
 }Dfa;
 
-struct Symbol{
-    char *token;    //!Assigned name of symbol
-    char *lexeme;   //!Name of found key as is writen in source
+typedef struct Symbol{
+    char *token;    //!< Assigned name of symbol
+    char *lexeme;   //!< Name of found key as is writen in source
 }Symbol;
 
 //! generates and fills token table for use in lexing
@@ -44,7 +44,9 @@ bool dfa_free(struct Dfa *dfa);
  \param start first char and will incriment from there until symbol is found
  \returns struct Symbol: containing the next sybol starting with <start>
 */
-struct Symbol next_key(struct Dfa *dfa, char *buff, char **cursor);
+Symbol next_key(struct Dfa *dfa, char *buff, char **cursor);
+
+
 void set_node(struct Dfa *dfa, 
               int node, 
               char *lexeme, 

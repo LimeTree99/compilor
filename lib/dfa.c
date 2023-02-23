@@ -78,18 +78,16 @@ bool dfa_free(struct Dfa *dfa){
 //2. if end of buff 2: curr = buff 
 //3. else: you are at EOF return token.
 // if token 
-struct Symbol next_key(struct Dfa *dfa, char *buff, char **cursor){
-    
-    char *curr = *cursor;
+Symbol next_key(struct Dfa *dfa, char *buff, char **cursor){
     int prev_node = 0;
     int node = 0;
     bool end = false;
-    struct Symbol re_symbol;
+    Symbol re_symbol;
+
+    char *start = *cursor;
     
-    printf("start char: %c node: %d\n", **cursor, node);
-    do{
+    while (!end){
         if (**cursor == '\0'){
-            printf("encountered null\n");
             if ( ((int)*cursor - (int)buff + 1) % BUFF_SIZE != 0 ){
                 end = true;
             }else if (((int)*cursor - (int)buff + 1) > BUFF_SIZE){
@@ -97,24 +95,22 @@ struct Symbol next_key(struct Dfa *dfa, char *buff, char **cursor){
             }
         }
         
-        
         prev_node = node;
         node = *(dfa->token_table + (node * CHARSET_SIZE) + **cursor);
-        
-        *cursor += 1;
-        printf("char: %c node: %d\n", **cursor, node);
 
+        if (node == 0 || node == -1){
+            end = true;
+        }else{
+            *cursor += 1;
+        }
 
-
-        end = true;
-
-    }while(!end && node != 0 && node != -1);
-    printf("end\n");
-    
-    if (node == 0){
-        //symbol found
-        //re_symbol.lexeme = 
     }
+
+    
+    //symbol found
+    re_symbol.lexeme = str_copy(*(dfa->node_lex + prev_node));
+    re_symbol.token = str_cp_sec(start, *cursor);
+    
     return re_symbol;
 
 }

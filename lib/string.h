@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "general.h"
 
+
 //! find if two strings are the same
 /*!
     \param str1
@@ -14,12 +15,14 @@
 */
 bool str_cmp(char *str1, char *str2);
 
+
 //! Get length of string
 /*!
     \param str string to be counted
     \return Length of string NOT including null ternination
 */
 int str_len(char *str);
+
 
 //! Generate copy of string, use str_free() to derefrence
 /*!
@@ -28,6 +31,16 @@ int str_len(char *str);
 */
 char *str_copy(char *str);
 
+
+//! Create a copy of a string bounded between two pointers, use str_free() to derefrence
+/*!
+    \param start pointer to first character in string
+    \param end pointer to last character in string
+    \returns pointer to new string
+*/
+char *str_cp_sec(char *start, char *end);
+
+\
 //!Free a string 
 /*!
     \param str the string to free
