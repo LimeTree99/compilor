@@ -1,17 +1,5 @@
 #include "dfa.h"
 
-struct Dfa *dfa_new(int max_nodes){
-    struct Dfa *new_dfa = (struct Dfa *)malloc(sizeof(struct Dfa));
-    new_dfa->token_table = (int *)malloc(sizeof(int) * max_nodes * CHARSET_SIZE);
-    for (int i=0; i < max_nodes * CHARSET_SIZE; i++){
-        *(new_dfa->token_table + i) = -1;  //assign the base value of link to -1
-    }
-    new_dfa->node_lex = (char **)malloc(sizeof(char *) * max_nodes);
-    new_dfa->num_nodes = 0;
-    new_dfa->max_nodes = max_nodes;
-    return new_dfa;
-}
-
 struct Dfa *generate_lex1(){
     int num_nodes = 27;
     char *l_char[] = {"/d","/w","<",">","=","+","-","*","/","%","(",")","[","]",",",";",".","e",
@@ -65,6 +53,18 @@ struct Dfa *generate_lex1(){
     return dfa;   
 }
 
+struct Dfa *dfa_new(int max_nodes){
+    struct Dfa *new_dfa = (struct Dfa *)malloc(sizeof(struct Dfa));
+    new_dfa->token_table = (int *)malloc(sizeof(int) * max_nodes * CHARSET_SIZE);
+    for (int i=0; i < max_nodes * CHARSET_SIZE; i++){
+        *(new_dfa->token_table + i) = -1;  //assign the base value of link to -1
+    }
+    new_dfa->node_lex = (char **)malloc(sizeof(char *) * max_nodes);
+    new_dfa->num_nodes = 0;
+    new_dfa->max_nodes = max_nodes;
+    return new_dfa;
+}
+
 bool dfa_free(struct Dfa *dfa){
     free(dfa->token_table);
     free(dfa->node_lex);
@@ -78,22 +78,44 @@ bool dfa_free(struct Dfa *dfa){
 //2. if end of buff 2: curr = buff 
 //3. else: you are at EOF return token.
 // if token 
-struct Symbol next_key(struct Dfa *dfa, char *buff, char *start){
-    char *curr = start;
+struct Symbol next_key(struct Dfa *dfa, char *buff, char **cursor){
+    
+    char *curr = *cursor;
     int prev_node = 0;
     int node = 0;
+    bool end = false;
     struct Symbol re_symbol;
-
+    
+    printf("start char: %c node: %d\n", **cursor, node);
     do{
+        if (**cursor == '\0'){
+            printf("encountered null\n");
+            if ( ((int)*cursor - (int)buff + 1) % BUFF_SIZE != 0 ){
+                end = true;
+            }else if (((int)*cursor - (int)buff + 1) > BUFF_SIZE){
+                *cursor = buff;
+            }
+        }
+        
+        
         prev_node = node;
-        node = *(dfa->token_table + (node * CHARSET_SIZE) + *curr);
-        curr++;
-    }while(node != 0 && *curr != '\0');
+        node = *(dfa->token_table + (node * CHARSET_SIZE) + **cursor);
+        
+        *cursor += 1;
+        printf("char: %c node: %d\n", **cursor, node);
 
+
+
+        end = true;
+
+    }while(!end && node != 0 && node != -1);
+    printf("end\n");
+    
     if (node == 0){
         //symbol found
         //re_symbol.lexeme = 
     }
+    return re_symbol;
 
 }
 

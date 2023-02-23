@@ -6,16 +6,24 @@
 
  \section a Things to do
 
- 1. fix up the main.lexer() so it doesn't bother with '\0' (this is now the job of new_key())
- 1.5 figure out how to addvance the buff 
- 2. Complete dfa.next_key()
+ 
+ 1. Complete dfa.next_key()
+    -
+ 2. get the symbol and put in table. do this in lexer() func
+
+ \section Use
+
+ SYNTAX
+    comp [file]
+
+    file: source code text file ending in .cp
+
 
 */
 
 /*! \file main.c
  \brief main() and comand line input handeling.
 */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,13 +32,9 @@
 #include "build.h"
 
 
-
 #define COLOR_RESET  "\x1b[0m"
 #define COLOR_RED    "\x1b[31m"
 #define COLOR_GREEN  "\x1b[32m"
-
-#define BUFF_SIZE 100   //!currently no safeguard if token is longer than BUFF_SIZE
-
 
 
 void error(char *message, ...){
@@ -58,6 +62,8 @@ void check_file_name(char *name){
 //do in a stream
 
 //unicode is not allowed! only ascii!
+
+/*
 void lexer(FILE *fh){
     char buff[2][BUFF_SIZE];
     int select_buff = 0;
@@ -103,6 +109,59 @@ void lexer(FILE *fh){
         curr = buff[select_buff][cursor];
     }
     
+}*/
+
+void lexer(FILE *fh){
+    char buff[2][BUFF_SIZE];
+    struct Dfa *dfa = generate_lex1();
+    
+    int num_read;
+    int hold = 0;
+    int *buff_select = &hold;
+    int char_num = 0;
+    bool end = false;
+    
+    int line_num = 1;
+
+    char *curr_p = &(buff[0][0]);
+    char **curr = &curr_p;            //a double pointer so that it can be changed in a function
+            
+    
+    //read in the initial chars to the buff 
+    num_read = fread(buff[0], sizeof(char), BUFF_SIZE-1, fh);
+    buff[0][num_read] = '\0';
+    num_read = fread(buff[1], sizeof(char), BUFF_SIZE-1, fh);
+    buff[1][num_read] = '\0';
+
+
+    while (!end){
+        
+        if (**curr == '\n'){
+            line_num++;
+            *curr += 1;
+        }else if (**curr == '\0' && ((int)*curr - (int)&(buff[0][0]) + 1) % BUFF_SIZE != 0){
+            end = true;
+        }else if (**curr == ' ' || **curr == '\t'){
+            *curr += 1;
+        }else{
+
+            next_key(dfa, &(buff[0][0]), curr);
+            printf("-%c-\n", **curr);
+            if (*buff_select == 0 && (int)*curr - (int)&(buff[0][0]) >= BUFF_SIZE ||
+                *buff_select == 1 && (int)*curr - (int)&(buff[0][0]) < BUFF_SIZE){
+
+                *buff_select = !(*buff_select);
+                num_read = fread(buff[*buff_select], sizeof(char), BUFF_SIZE-1, fh);
+                buff[*buff_select][num_read] = '\0';
+            }
+            
+        }
+        
+
+        printf("char: %c buff_select: %d cursor:%d line: %d\n", **curr, *buff_select, ((int)*curr - (int)&(buff[0][0]) + 1) % BUFF_SIZE, line_num);
+
+    }
+
 }
 
 
@@ -129,7 +188,7 @@ int main(int argc, char * argv[]){
 
 
     struct Dfa *dfa = generate_lex1();
-    printf("dfa: %d\n", *(dfa->token_table + (20 * CHARSET_SIZE) + 'a'));
+    printf("dfa: %d\n", *(dfa->token_table + (20 * CHARSET_SIZE) + ' '));
 
 
     printf("\n--------------\n");

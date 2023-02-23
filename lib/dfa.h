@@ -1,5 +1,5 @@
 /*! \file dfa.h
- \brief For creating ad traversing DFA structures.
+ \brief For creating and traversing DFA structures.
 */
 
 #include "string.h"
@@ -20,18 +20,19 @@ struct Symbol{
     char *lexeme;   //!Name of found key as is writen in source
 }Symbol;
 
+//! generates and fills token table for use in lexing
+/*!
+ \returns dfa 
+*/
+struct Dfa *generate_lex1();
+
+
 //! Create a new dfa. Use dfa_free() to dereference
 /*!
  \param max_nods
  \returns dfa pointer to created dfa
 */
 struct Dfa *dfa_new(int max_nodes);
-
-//! generates and fills token table for use in lexing
-/*!
- \returns dfa 
-*/
-struct Dfa *generate_lex1();
 
 
 bool dfa_free(struct Dfa *dfa);
@@ -43,7 +44,7 @@ bool dfa_free(struct Dfa *dfa);
  \param start first char and will incriment from there until symbol is found
  \returns struct Symbol: containing the next sybol starting with <start>
 */
-struct Symbol next_key(struct Dfa *dfa, char *buff, char *start);
+struct Symbol next_key(struct Dfa *dfa, char *buff, char **cursor);
 void set_node(struct Dfa *dfa, 
               int node, 
               char *lexeme, 

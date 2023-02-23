@@ -1,5 +1,5 @@
 /*! \file build.h
- \brief Defines static variables of the compilor
+ \brief For generating and defining items specific to this lexicon and grammar.
 */
 
 #include "dfa.h"
@@ -12,4 +12,7 @@ char *keywords[NUM_KEYWORDS] = {
     "do", "od", "not", "and", "or", 
     "def", "fed", "return", "int", "double", 
     "print"};
-    
+
+
+
+
