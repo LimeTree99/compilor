@@ -15,6 +15,10 @@ bool str_cmp(char *str1, char *str2){
         c1 = str1[i];
         c2 = str2[i];
     }
+
+    if (same && c1 != c2){ //this checks for same length
+        same = false;
+    }
     return same;
 }
 
@@ -41,10 +45,19 @@ char *str_copy(char *str){
 
 char *str_cp_sec(char *start, char *end){
     int len = (int)end - (int)start + 1;
+    int i=0;
+    int offset = 0;
     char *re_str = (char *)malloc(len * sizeof(char));
 
-    for (int i=0; i < len-1; i++){
-        *(re_str + i) = *(start + i);
+
+    while (start + i != end + 1){
+        if (*(start + i) == '\0'){
+            offset++;
+        }else{
+            *(re_str + i) = *(start + i + offset);
+            i++;
+        }
+        
     }
 
     *(re_str + len - 1) = '\0';

@@ -6,8 +6,6 @@ struct Dfa *generate_lex1(){
                       ">","=",
                       "=",
                       "=",
-                      "/d",
-                      "/d",
                       "/d","/w","_",
                       "/d",".",
                       "/d",
@@ -19,8 +17,6 @@ struct Dfa *generate_lex1(){
                    19,5,
                    6,
                    4,
-                   21,
-                   21,
                    20,20,20,
                    21,22,
                    23,
@@ -29,8 +25,8 @@ struct Dfa *generate_lex1(){
                    26,
                    26};
     int len[] = {18,2,1,1,
-                 0,0,0,1,
-                 1,0,0,0,
+                 0,0,0,0,
+                 0,0,0,0,
                  0,0,0,0,
                  0,0,0,0,
                  3,2,1,3,
@@ -82,7 +78,11 @@ Symbol next_key(struct Dfa *dfa, char *buff, char **cursor){
     int prev_node = 0;
     int node = 0;
     bool end = false;
+    int token_i = 0;
+    char token[BUFF_SIZE];
     Symbol re_symbol;
+
+    int i;
 
     char *start = *cursor;
     
@@ -92,24 +92,41 @@ Symbol next_key(struct Dfa *dfa, char *buff, char **cursor){
                 end = true;
             }else if (((int)*cursor - (int)buff + 1) > BUFF_SIZE){
                 *cursor = buff;
+            }else{
+                *cursor += 1;
             }
         }
         
         prev_node = node;
         node = *(dfa->token_table + (node * CHARSET_SIZE) + **cursor);
 
+        token[token_i] = **cursor;
+
         if (node == 0 || node == -1){
             end = true;
         }else{
+            token_i++;
             *cursor += 1;
         }
 
     }
+    token[token_i] = '\0';
 
-    
-    //symbol found
     re_symbol.lexeme = str_copy(*(dfa->node_lex + prev_node));
-    re_symbol.token = str_cp_sec(start, *cursor);
+
+    if ( str_cmp(re_symbol.lexeme, "var") ){
+        //check if variable is of type "keyword"
+        i=0;
+        end=false;
+        while (!end && i < NUM_KEYWORDS){
+            if (str_cmp(token, keywords[i])){
+                re_symbol.lexeme = "keyword";
+            }
+            i++;
+        }
+    }
+
+    re_symbol.token = str_copy(token);
     
     return re_symbol;
 

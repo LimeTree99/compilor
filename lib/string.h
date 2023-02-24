@@ -4,7 +4,7 @@
 */
 
 #include <stdlib.h>
-#include "general.h"
+#include "build.h"
 
 
 //! find if two strings are the same
