@@ -16,6 +16,8 @@ struct Dfa{
 }Dfa;
 
 typedef struct Symbol{
+    int line_num;   //!< Line that the token appears at
+    int char_num;   //!< Location of first char of the token in the current line
     char *token;    //!< Assigned name of symbol
     char *lexeme;   //!< Name of found key as is writen in source
 }Symbol;
@@ -44,7 +46,7 @@ bool dfa_free(struct Dfa *dfa);
  \param start first char and will incriment from there until symbol is found
  \returns struct Symbol: containing the next sybol starting with <start>
 */
-Symbol next_key(struct Dfa *dfa, char *buff, char **cursor);
+Symbol next_key(struct Dfa *dfa, char *buff, char **cursor, int *char_number);
 
 
 void set_node(struct Dfa *dfa, 

@@ -74,7 +74,7 @@ bool dfa_free(struct Dfa *dfa){
 //2. if end of buff 2: curr = buff 
 //3. else: you are at EOF return token.
 // if token 
-Symbol next_key(struct Dfa *dfa, char *buff, char **cursor){
+Symbol next_key(struct Dfa *dfa, char *buff, char **cursor, int *char_num){
     int prev_node = 0;
     int node = 0;
     bool end = false;
@@ -107,8 +107,8 @@ Symbol next_key(struct Dfa *dfa, char *buff, char **cursor){
             end = true;
         }else if (node == -1){
             end = true;
-        }else{
-            printf("%c", **cursor);  
+        }else{ 
+            *char_num += 1; 
             token_i++;
             *cursor += 1;
         }

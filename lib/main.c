@@ -94,10 +94,12 @@ void lexer(FILE *code_fh, FILE *symbol_fh){
     int num_read;
     int hold = 0;
     int *buff_select = &hold;
-    int char_num = 0;
     bool end = false;
     
     int line_num = 1;
+    int hold2 = 0;
+    int *char_num = &hold2;
+    int char_num_start;
 
     char *curr_p = &(buff[0][0]);
     char **curr = &curr_p;            //a double pointer so that it can be changed in a function
@@ -114,25 +116,33 @@ void lexer(FILE *code_fh, FILE *symbol_fh){
         if (**curr == '\n'){
             printf("\n%d: ", line_num);
             line_num++;
+            *char_num = 0;
             *curr += 1;
         }else if (**curr == '\0' && ((int)*curr - (int)&(buff[0][0]) + 1) % BUFF_SIZE != 0){
             end = true;
         }else if (**curr == ' ' || **curr == '\t'){
             *curr += 1;
+            *char_num += 1;
         }else{
+            char_num_start = *char_num;
+            sym = next_key(dfa, &(buff[0][0]), curr, char_num);
+            sym.line_num = line_num;
+            sym.char_num = char_num_start;
             
-            sym = next_key(dfa, &(buff[0][0]), curr);
-            
-            fprintf(symbol_fh, "lex: <%s>, token: <%s>\n", sym.lexeme, sym.token);
+            fprintf(symbol_fh, "line: %d, char: %d, lex: <%s>, token: <%s>\n", 
+                    sym.line_num, 
+                    sym.char_num, 
+                    sym.lexeme, 
+                    sym.token);
 
-            //the contense of sym are a memory leak
+            //the contense of sym are a memory leak FIX IT!
+            //although i might store sym in a linked list, so might be fine
             
             //swap and read in buffer if curr has noved to the next buffer
             if (*buff_select == 0 && (int)*curr - (int)&(buff[0][0]) >= BUFF_SIZE ||
                 *buff_select == 1 && (int)*curr - (int)&(buff[0][0]) < BUFF_SIZE){
                 
                 *buff_select = !(*buff_select);
-                printf("<buff: %d>", *buff_select);
                 num_read = fread(buff[!(*buff_select)], sizeof(char), BUFF_SIZE-1, code_fh);
                 buff[!(*buff_select)][num_read] = '\0';
                 
@@ -149,9 +159,7 @@ void lexer(FILE *code_fh, FILE *symbol_fh){
 
 
 int main(int argc, char * argv[]){
-    printf("start\n");
-    printf("The lexer:\n");
-    printf("---------------\n");
+    printf("start compilation\n");
     FILE *code_fh;
     FILE *symbol_fh;
 
@@ -169,17 +177,6 @@ int main(int argc, char * argv[]){
     }else{
         error("failed to open file <%s>", argv[argc-1]);
     }
-    printf("\n--------------\n");
-    printf("DNF testing:\n");
-    printf("--------------\n");
-
-
-
-    struct Dfa *dfa = generate_lex1();
-    printf("dfa: %d\n", *(dfa->token_table + (20 * CHARSET_SIZE) + ' '));
-
-
-    printf("\n--------------\n");
     printf("end\n");
     return 0;
 }
