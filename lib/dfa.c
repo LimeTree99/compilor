@@ -89,22 +89,26 @@ Symbol next_key(struct Dfa *dfa, char *buff, char **cursor){
     while (!end){
         if (**cursor == '\0'){
             if ( ((int)*cursor - (int)buff + 1) % BUFF_SIZE != 0 ){
+                
                 end = true;
-            }else if (((int)*cursor - (int)buff + 1) > BUFF_SIZE){
+            }else if (((int)*cursor - (int)buff + 1) >= BUFF_SIZE * 2){
                 *cursor = buff;
             }else{
                 *cursor += 1;
             }
         }
-        
+             
         prev_node = node;
         node = *(dfa->token_table + (node * CHARSET_SIZE) + **cursor);
 
         token[token_i] = **cursor;
 
-        if (node == 0 || node == -1){
+        if (node == 0){
+            end = true;
+        }else if (node == -1){
             end = true;
         }else{
+            printf("%c", **cursor);  
             token_i++;
             *cursor += 1;
         }

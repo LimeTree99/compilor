@@ -112,6 +112,7 @@ void lexer(FILE *code_fh, FILE *symbol_fh){
     while (!end){
         
         if (**curr == '\n'){
+            printf("\n%d: ", line_num);
             line_num++;
             *curr += 1;
         }else if (**curr == '\0' && ((int)*curr - (int)&(buff[0][0]) + 1) % BUFF_SIZE != 0){
@@ -123,7 +124,6 @@ void lexer(FILE *code_fh, FILE *symbol_fh){
             sym = next_key(dfa, &(buff[0][0]), curr);
             
             fprintf(symbol_fh, "lex: <%s>, token: <%s>\n", sym.lexeme, sym.token);
-            printf("lex: <%s>, token: <%s>\n", sym.lexeme, sym.token);
 
             //the contense of sym are a memory leak
             
@@ -131,10 +131,11 @@ void lexer(FILE *code_fh, FILE *symbol_fh){
             if (*buff_select == 0 && (int)*curr - (int)&(buff[0][0]) >= BUFF_SIZE ||
                 *buff_select == 1 && (int)*curr - (int)&(buff[0][0]) < BUFF_SIZE){
                 
-
                 *buff_select = !(*buff_select);
-                num_read = fread(buff[*buff_select], sizeof(char), BUFF_SIZE-1, code_fh);
-                buff[*buff_select][num_read] = '\0';
+                printf("<buff: %d>", *buff_select);
+                num_read = fread(buff[!(*buff_select)], sizeof(char), BUFF_SIZE-1, code_fh);
+                buff[!(*buff_select)][num_read] = '\0';
+                
             }            
             
         }
