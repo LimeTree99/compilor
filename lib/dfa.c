@@ -37,7 +37,7 @@ struct Dfa *generate_lex1(){
                      "sub","mult","div","mod",
                      "l_round","r_round","l_square","r_square",
                      "comma","semi_col","end","not_eq",
-                     "var","int","\0","double",
+                     "var","int","double","double",
                      "\0","\0","double"};
 
     struct Dfa *dfa = dfa_new(num_nodes);
@@ -67,13 +67,7 @@ bool dfa_free(struct Dfa *dfa){
     free(dfa);
     return true;
 }
-
-//work out how to deal with '\0' at both EOF and end of buff
-//solution: if '\0' is encountered then
-//1. if end of buff 1: curr++ (just keep going)
-//2. if end of buff 2: curr = buff 
-//3. else: you are at EOF return token.
-// if token 
+ 
 Symbol next_key(struct Dfa *dfa, char *buff, char **cursor, int *char_num){
     int prev_node = 0;
     int node = 0;
@@ -85,7 +79,6 @@ Symbol next_key(struct Dfa *dfa, char *buff, char **cursor, int *char_num){
     int i;
 
     char *start = *cursor;
-    
     while (!end){
         if (**cursor == '\0'){
             if ( ((int)*cursor - (int)buff + 1) % BUFF_SIZE != 0 ){
@@ -128,6 +121,10 @@ Symbol next_key(struct Dfa *dfa, char *buff, char **cursor, int *char_num){
             }
             i++;
         }
+    }else if ( *(re_symbol.lexeme) == '\0'){
+        printf("index: %d\n", ' ');
+        printf("cursor: <%c%c%c>\n", *(*cursor-1), *(*cursor), *(*cursor+2));
+        printf("number: <%d,%d,%d>\n", *(*cursor-1), *(*cursor), *(*cursor+1));
     }
 
     re_symbol.token = str_copy(token);

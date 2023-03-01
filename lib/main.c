@@ -52,29 +52,8 @@
 /*! \file main.c
  \brief main() and comand line input handeling.
 */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-
 #include "dfa.h"
 
-
-#define COLOR_RESET  "\x1b[0m"
-#define COLOR_RED    "\x1b[31m"
-#define COLOR_GREEN  "\x1b[32m"
-
-
-void error(char *message, ...){
-    va_list args;
-    va_start(args, message);
-    printf(COLOR_RED);
-    printf("Compiler Error: "); 
-    printf(COLOR_RESET);
-    vprintf(message, args);
-    printf("\n");
-    exit(1);
-}
 
 void check_file_name(char *name){
     int len = str_len(name);
@@ -82,7 +61,6 @@ void check_file_name(char *name){
         error("invalaid document type");
         exit(1);
     }
-
 }
 
 void lexer(FILE *code_fh, FILE *symbol_fh){
@@ -112,14 +90,18 @@ void lexer(FILE *code_fh, FILE *symbol_fh){
     buff[1][num_read] = '\0';
 
     while (!end){
-        
-        if (**curr == '\n'){
-            printf("\n%d: ", line_num);
+        if (**curr == '\0'){
+            if ( ((int)*curr - (int)&(buff[0][0]) + 1) == (BUFF_SIZE*2)){
+                *curr = &(buff[0][0]);
+            }else if ( ((int)*curr - (int)&(buff[0][0]) + 1) == BUFF_SIZE){
+                *curr += 1;
+            }else if ( ((int)*curr - (int)&(buff[0][0]) + 1) % BUFF_SIZE != 0 ){
+                end = true;
+            } 
+        }else if (**curr == '\n'){
             line_num++;
             *char_num = 0;
             *curr += 1;
-        }else if (**curr == '\0' && ((int)*curr - (int)&(buff[0][0]) + 1) % BUFF_SIZE != 0){
-            end = true;
         }else if (**curr == ' ' || **curr == '\t'){
             *curr += 1;
             *char_num += 1;
@@ -136,19 +118,18 @@ void lexer(FILE *code_fh, FILE *symbol_fh){
                     sym.token);
 
             //the contense of sym are a memory leak FIX IT!
-            //although i might store sym in a linked list, so might be fine
-            
-            //swap and read in buffer if curr has noved to the next buffer
-            if (*buff_select == 0 && (int)*curr - (int)&(buff[0][0]) >= BUFF_SIZE ||
-                *buff_select == 1 && (int)*curr - (int)&(buff[0][0]) < BUFF_SIZE){
-                
-                *buff_select = !(*buff_select);
-                num_read = fread(buff[!(*buff_select)], sizeof(char), BUFF_SIZE-1, code_fh);
-                buff[!(*buff_select)][num_read] = '\0';
-                
-            }            
-            
+            //although i might store sym in a linked list, so might be fine   
         }
+
+        //swap and read in buffer if curr has noved to the next buffer
+        if (*buff_select == 0 && (int)*curr - (int)&(buff[0][0]) >= BUFF_SIZE ||
+            *buff_select == 1 && (int)*curr - (int)&(buff[0][0]) < BUFF_SIZE){
+            
+            *buff_select = !(*buff_select);
+            num_read = fread(buff[!(*buff_select)], sizeof(char), BUFF_SIZE-1, code_fh);
+            buff[!(*buff_select)][num_read] = '\0';
+            
+        }    
         
 
         //printf("char: %c buff_select: %d cursor:%d line: %d\n", **curr, *buff_select, ((int)*curr - (int)&(buff[0][0]) + 1) % BUFF_SIZE, line_num);
