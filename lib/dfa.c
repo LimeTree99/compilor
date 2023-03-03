@@ -2,7 +2,7 @@
 
 struct Dfa *generate_lex1(){
     int num_nodes = 27;
-    char *l_char[] = {"/d","/w","<",">","=","+","-","*","/","%","(",")","[","]",",",";",".","e",
+    char *l_char[] = {"/d","/w","<",">","=","+","-","*","//","%","(",")","[","]",",",";",".","e",
                       ">","=",
                       "=",
                       "=",
@@ -71,7 +71,8 @@ bool dfa_free(struct Dfa *dfa){
  
 Symbol next_key(struct Dfa *dfa, 
                 char *buff, 
-                char **cursor, 
+                char **cursor,
+                int line_num, 
                 int *char_num, 
                 FILE *error_fh){
     int prev_node = 0;
@@ -130,14 +131,29 @@ Symbol next_key(struct Dfa *dfa,
             i++;
         }
     }else if ( *(re_symbol.lexeme) == '\0'){
-        //log error and retry
-        fprintf(error_fh, "Lexical Error: unknown symbol <%s>\n", re_symbol.token);
+        if (*cursor - start > 1){
+            fprintf(error_fh, 
+                    "Lexical error 'unknown symbol' <%s> at line: %d, char: %d\n", 
+                    re_symbol.token, 
+                    line_num, 
+                    *char_num);
 
-        *(*cursor-1) = ' '; //try changing the errored char to a space
+            *(*cursor-1) = ' '; //try changing the errored char to a space
 
-        *cursor = start;
-        *char_num = start_char_num;
-        re_symbol = next_key(dfa, buff, cursor, char_num, error_fh);
+            *cursor = start;
+            *char_num = start_char_num;
+            re_symbol = next_key(dfa, buff, cursor, line_num, char_num, error_fh);
+        }else{
+            //if it is a single unknown char move past it
+            fprintf(error_fh, 
+                    "Lexical error 'unknown symbol' <%c> at line: %d, char: %d\n", 
+                    **cursor, 
+                    line_num, 
+                    *char_num);
+            *cursor += 1;
+            re_symbol.token = false;
+            
+        }
 
     }
     

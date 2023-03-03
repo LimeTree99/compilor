@@ -16,10 +16,10 @@ struct Dfa{
 }Dfa;
 
 typedef struct Symbol{
-    int line_num;   //!< Line that the token appears at
-    int char_num;   //!< Location of first char of the token in the current line
     char *token;    //!< Assigned name of symbol
     char *lexeme;   //!< Name of found key as is writen in source
+    int line_num;   //!< Line that the token appears at
+    int char_num;   //!< Location of first char of the token in the current line
 }Symbol;
 
 //! generates and fills token table for use in lexing
@@ -44,6 +44,7 @@ bool dfa_free(struct Dfa *dfa);
  \param dfa dfa used to analize characters
  \param buff pointer to the bouble buffer
  \param start first char and will incriment from there until symbol is found
+ \param line_num
  \param char_num
  \param error_fh
  \returns struct Symbol: containing the next sybol starting with <start>
@@ -51,6 +52,7 @@ bool dfa_free(struct Dfa *dfa);
 Symbol next_key(struct Dfa *dfa, 
                 char *buff, 
                 char **cursor, 
+                int line_num,
                 int *char_num, 
                 FILE *error_fh);
 

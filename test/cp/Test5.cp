@@ -1,5 +1,5 @@
-double a = 4.2e;
-int b = 10;
+double a = 4.2ee-2;
+int with_score = 10/2;
 $
 //
 def func()

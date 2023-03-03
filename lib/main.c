@@ -107,15 +107,17 @@ void lexer(FILE *code_fh, FILE *symbol_fh, FILE *error_fh){
             *char_num += 1;
         }else{
             char_num_start = *char_num;
-            sym = next_key(dfa, &(buff[0][0]), curr, char_num, error_fh);
+            sym = next_key(dfa, &(buff[0][0]), curr, line_num, char_num, error_fh);
             sym.line_num = line_num;
             sym.char_num = char_num_start;
-            
-            fprintf(symbol_fh, "line: %d, char: %d, lex: <%s>, token: <%s>\n", 
-                    sym.line_num, 
-                    sym.char_num, 
-                    sym.lexeme, 
-                    sym.token);
+
+            if (*(sym.lexeme) != '\0'){
+                fprintf(symbol_fh, "line: %d, char: %d, lex: <%s>, token: <%s>\n", 
+                        sym.line_num, 
+                        sym.char_num, 
+                        sym.lexeme, 
+                        sym.token);
+            }
 
             //the contense of sym are a memory leak FIX IT!
             //although i might store sym in a linked list, so might be fine   
@@ -159,6 +161,7 @@ int main(int argc, char * argv[]){
 
     fclose(code_fh);
     fclose(symbol_fh);
+    fclose(error_fh);
 
     
     printf("end\n");
