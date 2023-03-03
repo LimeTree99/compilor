@@ -131,7 +131,7 @@ void lexer(FILE *code_fh, FILE *symbol_fh, FILE *error_fh){
             num_read = fread(buff[!(*buff_select)], sizeof(char), BUFF_SIZE-1, code_fh);
             buff[!(*buff_select)][num_read] = '\0';
             
-        }    
+        }
         
 
         //printf("char: %c buff_select: %d cursor:%d line: %d\n", **curr, *buff_select, ((int)*curr - (int)&(buff[0][0]) + 1) % BUFF_SIZE, line_num);

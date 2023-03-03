@@ -1,2 +1,2 @@
-# compilor
-written for CP417
+# Compilor
+Written for CP417
