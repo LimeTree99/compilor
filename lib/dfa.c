@@ -67,8 +67,13 @@ bool dfa_free(struct Dfa *dfa){
     free(dfa);
     return true;
 }
+
  
-Symbol next_key(struct Dfa *dfa, char *buff, char **cursor, int *char_num){
+Symbol next_key(struct Dfa *dfa, 
+                char *buff, 
+                char **cursor, 
+                int *char_num, 
+                FILE *error_fh){
     int prev_node = 0;
     int node = 0;
     bool end = false;
@@ -79,10 +84,11 @@ Symbol next_key(struct Dfa *dfa, char *buff, char **cursor, int *char_num){
     int i;
 
     char *start = *cursor;
+    int start_char_num = *char_num;
+
     while (!end){
         if (**cursor == '\0'){
             if ( ((int)*cursor - (int)buff + 1) % BUFF_SIZE != 0 ){
-                
                 end = true;
             }else if (((int)*cursor - (int)buff + 1) >= BUFF_SIZE * 2){
                 *cursor = buff;
@@ -109,6 +115,8 @@ Symbol next_key(struct Dfa *dfa, char *buff, char **cursor, int *char_num){
     }
     token[token_i] = '\0';
 
+    re_symbol.token = str_copy(token);
+
     re_symbol.lexeme = str_copy(*(dfa->node_lex + prev_node));
 
     if ( str_cmp(re_symbol.lexeme, "var") ){
@@ -122,12 +130,16 @@ Symbol next_key(struct Dfa *dfa, char *buff, char **cursor, int *char_num){
             i++;
         }
     }else if ( *(re_symbol.lexeme) == '\0'){
-        printf("index: %d\n", ' ');
-        printf("cursor: <%c%c%c>\n", *(*cursor-1), *(*cursor), *(*cursor+2));
-        printf("number: <%d,%d,%d>\n", *(*cursor-1), *(*cursor), *(*cursor+1));
-    }
+        //log error and retry
+        fprintf(error_fh, "Lexical Error: unknown symbol <%s>\n", re_symbol.token);
 
-    re_symbol.token = str_copy(token);
+        *(*cursor-1) = ' '; //try changing the errored char to a space
+
+        *cursor = start;
+        *char_num = start_char_num;
+        re_symbol = next_key(dfa, buff, cursor, char_num, error_fh);
+
+    }
     
     return re_symbol;
 

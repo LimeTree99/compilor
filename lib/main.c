@@ -63,7 +63,7 @@ void check_file_name(char *name){
     }
 }
 
-void lexer(FILE *code_fh, FILE *symbol_fh){
+void lexer(FILE *code_fh, FILE *symbol_fh, FILE *error_fh){
     char buff[2][BUFF_SIZE];
     struct Dfa *dfa = generate_lex1();
 
@@ -107,7 +107,7 @@ void lexer(FILE *code_fh, FILE *symbol_fh){
             *char_num += 1;
         }else{
             char_num_start = *char_num;
-            sym = next_key(dfa, &(buff[0][0]), curr, char_num);
+            sym = next_key(dfa, &(buff[0][0]), curr, char_num, error_fh);
             sym.line_num = line_num;
             sym.char_num = char_num_start;
             
@@ -143,21 +143,24 @@ int main(int argc, char * argv[]){
     printf("start compilation\n");
     FILE *code_fh;
     FILE *symbol_fh;
+    FILE *error_fh;
 
     check_file_name(argv[argc-1]);
 
     code_fh = fopen(argv[argc-1], "r");
     symbol_fh = fopen("io/symbols.txt", "w");
-    if (code_fh && symbol_fh){
+    error_fh = fopen("io/error.txt", "w");
 
-        lexer(code_fh, symbol_fh);
+    if (!code_fh) error("failed to open file <%s>", argv[argc-1]);
+    if (!symbol_fh) symbol_fh = stdout;
+    if (!error_fh) error_fh = stdout;
 
-        fclose(code_fh);
-        fclose(symbol_fh);
+    lexer(code_fh, symbol_fh, error_fh);
 
-    }else{
-        error("failed to open file <%s>", argv[argc-1]);
-    }
+    fclose(code_fh);
+    fclose(symbol_fh);
+
+    
     printf("end\n");
     return 0;
 }
