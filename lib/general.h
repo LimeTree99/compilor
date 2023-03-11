@@ -8,8 +8,13 @@
 
 typedef enum{false=0, true=1}bool;
 
-#define BUFF_SIZE 15   //!Buffer size for file input
-                        //currently no safeguard if token is longer than BUFF_SIZE
+FILE *SYMBOL_FH;   //! Output for the symbol table  
+FILE *ERROR_FH;    //! Output for errors
+
+#define BUFF_SIZE 15        //! Buffer size for file input
+                            //currently no safeguard if token is longer than BUFF_SIZE
+
+
 
 #define COLOR_RESET  "\x1b[0m"
 #define COLOR_RED    "\x1b[31m"

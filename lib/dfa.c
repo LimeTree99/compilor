@@ -73,8 +73,7 @@ Symbol next_key(struct Dfa *dfa,
                 char *buff, 
                 char **cursor,
                 int line_num, 
-                int *char_num, 
-                FILE *error_fh){
+                int *char_num){
     int prev_node = 0;
     int node = 0;
     bool end = false;
@@ -132,7 +131,7 @@ Symbol next_key(struct Dfa *dfa,
         }
     }else if ( *(re_symbol.lexeme) == '\0'){
         if (*cursor - start > 1){
-            fprintf(error_fh, 
+            fprintf(ERROR_FH, 
                     "Lexical error 'unknown symbol' <%s> at line: %d, char: %d\n", 
                     re_symbol.token, 
                     line_num, 
@@ -142,10 +141,10 @@ Symbol next_key(struct Dfa *dfa,
 
             *cursor = start;
             *char_num = start_char_num;
-            re_symbol = next_key(dfa, buff, cursor, line_num, char_num, error_fh);
+            re_symbol = next_key(dfa, buff, cursor, line_num, char_num);
         }else{
             //if it is a single unknown char move past it
-            fprintf(error_fh, 
+            fprintf(ERROR_FH, 
                     "Lexical error 'unknown symbol' <%c> at line: %d, char: %d\n", 
                     **cursor, 
                     line_num, 

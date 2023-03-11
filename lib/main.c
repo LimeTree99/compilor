@@ -21,6 +21,11 @@
  5. if I feel like it\n
     -let underscores be in variables (change in token table)\n
 
+ \section . My problems with language specifications
+
+ <pre>
+    -there is no way to declare boolean values!!
+ </pre>
 
  \section Use
  <pre>
@@ -31,8 +36,10 @@
         file: source code text file ending in .cp
 
         param:
-            '-stext'    output the symbol table as readable text    (incomplete)
-            '-sbin'     output symbol table as binary               (incomplete)
+            '-o [file]' name & location of exicutable
+            '-e [file]' specify name and location for error output
+            '-s [file]' specify name and location for symbol table, 
+                        if file is blank output wil go to stdout
  </pre>
 
  \section order File import order
@@ -46,6 +53,45 @@
     build
     ^
     general
+ </pre>
+
+ \section . Grammar
+ <pre>
+    S           := <exp>;
+    <exp>       := <dec> | <set> | <func-dec> | <func> 
+    <exp>       := <branch> | <loop> | <return> | <print>
+
+    <type>      := int | double | <var>
+    <item>      := <bool> | <int> | <var> | <func>
+    <op>        := + | - | * | / | % | < | > | >= | <= | <> | == | and | or
+
+    <equ>       := A <equ'>
+    <equ'>      := <op> A <equ'> | eps
+    A           := <item> | not <equ> | ( <equ> )
+
+    <dec>       := <type> <var> = <item>
+    <dec>       := <type> <var> <dec'>
+    <dec'>      := , <var> <dec'> | eps    
+
+    <set>       := <var> = <item>
+
+    <func-dec>  := def <var> ( B ) S fed | def <type> <var> ( B ) S fed
+    B           := <type> B' | eps
+    B'          := , <type> B' | eps
+
+    <func>      := <var> ( C )
+    C           := <equ> C' | eps
+    C'          := , <equ> C' |eps
+
+    <branch>    := if ( <equ> ) then S D fi
+    D           := else if ( <equ> ) then S D | else S | eps
+
+    <loop>      := while ( <equ> ) do S od
+
+    <return>    := return <equ>
+
+    <print>     := print ( <equ> )    
+
  </pre>
 */
 
@@ -63,7 +109,7 @@ void check_file_name(char *name){
     }
 }
 
-void lexer(FILE *code_fh, FILE *symbol_fh, FILE *error_fh){
+void lexer(FILE *code_fh){
     char buff[2][BUFF_SIZE];
     struct Dfa *dfa = generate_lex1();
 
@@ -73,6 +119,8 @@ void lexer(FILE *code_fh, FILE *symbol_fh, FILE *error_fh){
     int hold = 0;
     int *buff_select = &hold;
     bool end = false;
+
+    char sym_out[60];
     
     int line_num = 1;
     int hold2 = 0;
@@ -107,15 +155,16 @@ void lexer(FILE *code_fh, FILE *symbol_fh, FILE *error_fh){
             *char_num += 1;
         }else{
             char_num_start = *char_num;
-            sym = next_key(dfa, &(buff[0][0]), curr, line_num, char_num, error_fh);
+            sym = next_key(dfa, &(buff[0][0]), curr, line_num, char_num);
             sym.line_num = line_num;
             sym.char_num = char_num_start;
 
             if (*(sym.lexeme) != '\0'){
-                fprintf(symbol_fh, "line: %d, char: %d, lex: <%s>, token: <%s>\n", 
+                sprintf(sym_out, "<%s>", sym.lexeme);
+                fprintf(SYMBOL_FH, "line: %-4d char: %-3d lex: %-12s token: <%s>\n", 
                         sym.line_num, 
                         sym.char_num, 
-                        sym.lexeme, 
+                        sym_out, 
                         sym.token);
             }
 
@@ -123,6 +172,7 @@ void lexer(FILE *code_fh, FILE *symbol_fh, FILE *error_fh){
             //although i might store sym in a linked list, so might be fine   
         }
 
+        
         //swap and read in buffer if curr has noved to the next buffer
         if (*buff_select == 0 && (int)*curr - (int)&(buff[0][0]) >= BUFF_SIZE ||
             *buff_select == 1 && (int)*curr - (int)&(buff[0][0]) < BUFF_SIZE){
@@ -132,8 +182,6 @@ void lexer(FILE *code_fh, FILE *symbol_fh, FILE *error_fh){
             buff[!(*buff_select)][num_read] = '\0';
             
         }
-        
-
         //printf("char: %c buff_select: %d cursor:%d line: %d\n", **curr, *buff_select, ((int)*curr - (int)&(buff[0][0]) + 1) % BUFF_SIZE, line_num);
 
     }
@@ -144,24 +192,22 @@ void lexer(FILE *code_fh, FILE *symbol_fh, FILE *error_fh){
 int main(int argc, char * argv[]){
     printf("start compilation\n");
     FILE *code_fh;
-    FILE *symbol_fh;
-    FILE *error_fh;
 
     check_file_name(argv[argc-1]);
 
     code_fh = fopen(argv[argc-1], "r");
-    symbol_fh = fopen("io/symbols.txt", "w");
-    error_fh = fopen("io/error.txt", "w");
+    SYMBOL_FH = fopen("io/symbols.txt", "w");
+    //ERROR_FH = fopen("io/error.txt", "w");
 
     if (!code_fh) error("failed to open file <%s>", argv[argc-1]);
-    if (!symbol_fh) symbol_fh = stdout;
-    if (!error_fh) error_fh = stdout;
+    if (!SYMBOL_FH) SYMBOL_FH = stdout;
+    if (!ERROR_FH) ERROR_FH = stdout;
 
-    lexer(code_fh, symbol_fh, error_fh);
+    lexer(code_fh);
 
     fclose(code_fh);
-    fclose(symbol_fh);
-    fclose(error_fh);
+    if (SYMBOL_FH != stdout) fclose(SYMBOL_FH);
+    if (ERROR_FH != stdout) fclose(ERROR_FH);
 
     
     printf("end\n");

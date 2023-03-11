@@ -53,8 +53,7 @@ Symbol next_key(struct Dfa *dfa,
                 char *buff, 
                 char **cursor, 
                 int line_num,
-                int *char_num, 
-                FILE *error_fh);
+                int *char_num);
 
 
 void set_node(struct Dfa *dfa, 
