@@ -20,6 +20,7 @@ typedef struct Symbol{
     char *lexeme;   //!< Name of found key as is writen in source
     int line_num;   //!< Line that the token appears at
     int char_num;   //!< Location of first char of the token in the current line
+    struct Symbol *next;
 }Symbol;
 
 //! generates and fills token table for use in lexing
@@ -36,6 +37,8 @@ struct Dfa *generate_lex1();
 */
 struct Dfa *dfa_new(int max_nodes);
 
+Symbol *symbol_new(char *token, char *lexeme, int line_num, int char_num);
+
 
 bool dfa_free(struct Dfa *dfa);
 
@@ -49,7 +52,7 @@ bool dfa_free(struct Dfa *dfa);
  \param error_fh
  \returns struct Symbol: containing the next sybol starting with <start>
 */
-Symbol next_key(struct Dfa *dfa, 
+Symbol *next_key(struct Dfa *dfa, 
                 char *buff, 
                 char **cursor, 
                 int line_num,

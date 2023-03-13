@@ -1,6 +1,6 @@
 symbol,first,follow,seperated by space ' '
 "S	",,$,
-"<exp>		;	",,,
+"<exp>	",,;,
 "<type>		",int double <var>,,
 "<item>			",,,
 "<op>			",,,

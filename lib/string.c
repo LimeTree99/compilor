@@ -32,6 +32,19 @@ int str_len(char *str){
     return i;
 }
 
+char *str_cat(char *str1, char *str2){
+    int len1 = str_len(str1);
+    int len2 = str_len(str2);
+    char *re_str = (char*)malloc(sizeof(char) * (len1 + len2 + 1));
+    for (int i=0; i<len1; i++){
+        *(re_str + i) = *(str1 + i);
+    }
+    for (int i=0; i<(len2+1); i++){
+        *(re_str + i + len1) = *(str2 + i);
+    }
+    return re_str;
+}
+
 char *str_copy(char *str){
     int len = str_len(str) + 1;
     char *re_str = (char *)malloc(len * sizeof(char));
@@ -41,6 +54,7 @@ char *str_copy(char *str){
     }
     return re_str;
 }
+
 
 
 char *str_cp_sec(char *start, char *end){
@@ -65,7 +79,3 @@ char *str_cp_sec(char *start, char *end){
     return re_str;
 }
 
-bool str_free(char *str){
-    free(str);  //this is probably incorrect
-    return true;
-}

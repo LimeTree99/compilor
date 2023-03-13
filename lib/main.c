@@ -111,11 +111,13 @@ void check_file_name(char *name){
     }
 }
 
-void lexer(FILE *code_fh){
+Symbol *lexer(FILE *code_fh){
     char buff[2][BUFF_SIZE];
     struct Dfa *dfa = generate_lex1();
 
     Symbol sym;
+    Symbol *root_sym = NULL;
+    Symbol *cur_sym;
     
     int num_read;
     int hold = 0;
@@ -157,24 +159,25 @@ void lexer(FILE *code_fh){
             *char_num += 1;
         }else{
             char_num_start = *char_num;
-            sym = next_key(dfa, &(buff[0][0]), curr, line_num, char_num);
-            sym.line_num = line_num;
-            sym.char_num = char_num_start;
-
-            if (*(sym.lexeme) != '\0'){
-                sprintf(sym_out, "<%s>", sym.lexeme);
-                fprintf(SYMBOL_FH, "line: %-4d char: %-3d lex: %-12s token: <%s>\n", 
-                        sym.line_num, 
-                        sym.char_num, 
-                        sym_out, 
-                        sym.token);
+            if (root_sym == NULL){
+                root_sym = next_key(dfa, &(buff[0][0]), curr, line_num, char_num);
+                cur_sym = root_sym;
+            }else{
+                cur_sym->next = next_key(dfa, &(buff[0][0]), curr, line_num, char_num);
+                cur_sym = cur_sym->next;
             }
+            cur_sym->line_num = line_num;
+            cur_sym->char_num = char_num_start;
 
-            //the contense of sym are a memory leak FIX IT!
-            //although i might store sym in a linked list, so might be fine   
-        }
-
-        
+            if (*(cur_sym->lexeme) != '\0'){
+                sprintf(sym_out, "<%s>", cur_sym->lexeme);
+                fprintf(SYMBOL_FH, "line: %-4d char: %-3d lex: %-13s token: <%s>\n", 
+                        cur_sym->line_num, 
+                        cur_sym->char_num, 
+                        sym_out, 
+                        cur_sym->token);
+            }
+        }        
         //swap and read in buffer if curr has noved to the next buffer
         if (*buff_select == 0 && (int)*curr - (int)&(buff[0][0]) >= BUFF_SIZE ||
             *buff_select == 1 && (int)*curr - (int)&(buff[0][0]) < BUFF_SIZE){
@@ -185,15 +188,33 @@ void lexer(FILE *code_fh){
             
         }
         //printf("char: %c buff_select: %d cursor:%d line: %d\n", **curr, *buff_select, ((int)*curr - (int)&(buff[0][0]) + 1) % BUFF_SIZE, line_num);
-
     }
 
+    cur_sym->next = NULL;
+
+    return root_sym;
+
+}
+
+
+void grammar(Symbol *root){
+    Symbol *cur_sym = root;
+
+    while (cur_sym != NULL){
+        printf("line: %-4d char: %-3d lex: <%s> token: <%s>\n", 
+                        cur_sym->line_num, 
+                        cur_sym->char_num, 
+                        cur_sym->lexeme, 
+                        cur_sym->token);
+        cur_sym = cur_sym->next;
+    }
 }
 
 
 int main(int argc, char * argv[]){
     printf("start compilation\n");
     FILE *code_fh;
+    Symbol *root;
 
     check_file_name(argv[argc-1]);
 
@@ -205,7 +226,10 @@ int main(int argc, char * argv[]){
     if (!SYMBOL_FH) SYMBOL_FH = stdout;
     if (!ERROR_FH) ERROR_FH = stdout;
 
-    lexer(code_fh);
+    root = lexer(code_fh);
+
+    grammar(root);
+
 
     fclose(code_fh);
     if (SYMBOL_FH != stdout) fclose(SYMBOL_FH);

@@ -1,6 +1,9 @@
 /*! \file string.h
  \brief Functions for use in manipulating strings.
  This is a replacement for the standard library functions.
+
+ This library operates where each function allocates the exact memory size for the string, 
+ if there is a char* returned. This means that delocating is very important to keep in mind. 
 */
 
 #include <stdlib.h>
@@ -16,7 +19,7 @@
 bool str_cmp(char *str1, char *str2);
 
 
-//! Get length of string
+//! Get length of string NOT including null ternination
 /*!
     \param str string to be counted
     \return Length of string NOT including null ternination
@@ -31,6 +34,8 @@ int str_len(char *str);
 */
 char *str_copy(char *str);
 
+char *str_cat(char *str1, char *str2);
+
 
 //! Create a copy of a string bounded between two pointers, use str_free() to derefrence
 /*!
@@ -39,11 +44,3 @@ char *str_copy(char *str);
     \returns pointer to new string
 */
 char *str_cp_sec(char *start, char *end);
-
-\
-//!Free a string 
-/*!
-    \param str the string to free
-    \return true if success, false if failure    
-*/
-bool str_free(char *str);

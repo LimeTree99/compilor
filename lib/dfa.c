@@ -69,19 +69,20 @@ bool dfa_free(struct Dfa *dfa){
 }
 
  
-Symbol next_key(struct Dfa *dfa, 
-                char *buff, 
-                char **cursor,
-                int line_num, 
-                int *char_num){
+Symbol *next_key(struct Dfa *dfa, 
+                 char *buff, 
+                 char **cursor,
+                 int line_num, 
+                 int *char_num){
     int prev_node = 0;
     int node = 0;
     bool end = false;
     int token_i = 0;
     char token[BUFF_SIZE];
-    Symbol re_symbol;
+    Symbol *re_symbol = (Symbol*)malloc(sizeof(Symbol));
 
     int i;
+    char str_keyw[] = "keyw-";
 
     char *start = *cursor;
     int start_char_num = *char_num;
@@ -115,25 +116,26 @@ Symbol next_key(struct Dfa *dfa,
     }
     token[token_i] = '\0';
 
-    re_symbol.token = str_copy(token);
+    re_symbol->token = str_copy(token);
 
-    re_symbol.lexeme = str_copy(*(dfa->node_lex + prev_node));
+    re_symbol->lexeme = str_copy(*(dfa->node_lex + prev_node));
 
-    if ( str_cmp(re_symbol.lexeme, "var") ){
+    if ( str_cmp(re_symbol->lexeme, "var") ){
         //check if variable is of type "keyword"
         i=0;
         end=false;
         while (!end && i < NUM_KEYWORDS){
             if (str_cmp(token, keywords[i])){
-                re_symbol.lexeme = "keyword";
+                free(re_symbol->lexeme);
+                re_symbol->lexeme = str_cat(str_keyw, keywords[i]);
             }
             i++;
         }
-    }else if ( *(re_symbol.lexeme) == '\0'){
+    }else if ( *(re_symbol->lexeme) == '\0'){
         if (*cursor - start > 1){
             fprintf(ERROR_FH, 
                     "Lexical error 'unknown symbol' <%s> at line: %d, char: %d\n", 
-                    re_symbol.token, 
+                    re_symbol->token, 
                     line_num, 
                     *char_num);
 
@@ -150,7 +152,7 @@ Symbol next_key(struct Dfa *dfa,
                     line_num, 
                     *char_num);
             *cursor += 1;
-            re_symbol.token = false;
+            re_symbol->token = false;
             
         }
 
