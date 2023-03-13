@@ -46,6 +46,8 @@
  <pre>
     main
     ^
+    grammar
+    ^
     dfa
     ^
     string
@@ -98,7 +100,7 @@
 /*! \file main.c
  \brief main() and comand line input handeling.
 */
-#include "dfa.h"
+#include "grammar.h"
 
 
 void check_file_name(char *name){
