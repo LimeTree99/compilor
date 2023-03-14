@@ -20,8 +20,12 @@ typedef struct Symbol{
     char *lexeme;   //!< Name of found key as is writen in source
     int line_num;   //!< Line that the token appears at
     int char_num;   //!< Location of first char of the token in the current line
+    int lex_id;
     struct Symbol *next;
 }Symbol;
+
+
+void pr_symbol(FILE *fh, Symbol *sym);
 
 //! generates and fills token table for use in lexing
 /*!

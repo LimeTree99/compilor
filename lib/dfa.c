@@ -68,7 +68,7 @@ bool dfa_free(struct Dfa *dfa){
     return true;
 }
 
- 
+
 Symbol *next_key(struct Dfa *dfa, 
                  char *buff, 
                  char **cursor,
@@ -82,7 +82,7 @@ Symbol *next_key(struct Dfa *dfa,
     Symbol *re_symbol = (Symbol*)malloc(sizeof(Symbol));
 
     int i;
-    char str_keyw[] = "keyw-";
+    char str_keyw[] = "kw-";
 
     char *start = *cursor;
     int start_char_num = *char_num;
@@ -147,7 +147,7 @@ Symbol *next_key(struct Dfa *dfa,
         }else{
             //if it is a single unknown char move past it
             fprintf(ERROR_FH, 
-                    "Lexical error 'unknown symbol' <%c> at line: %d, char: %d\n", 
+                    "Lexical error 'unknown symbol' <%c> at line: %d, char: %d\n",
                     **cursor, 
                     line_num, 
                     *char_num);
@@ -160,6 +160,16 @@ Symbol *next_key(struct Dfa *dfa,
     
     return re_symbol;
 
+}
+
+void pr_symbol(FILE *fh, Symbol *sym){
+    char lex_brac[str_len(sym->lexeme) + 3];
+    sprintf(lex_brac, "<%s>", sym->lexeme);
+    fprintf(fh, "line: %-4d char: %-3d lex: %-13s token: <%s>\n", 
+            sym->line_num, 
+            sym->char_num, 
+            lex_brac, 
+            sym->token);
 }
 
 //creates dfa node, for use in testing

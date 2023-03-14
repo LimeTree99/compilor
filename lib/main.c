@@ -5,21 +5,16 @@
  This is the introduction.
 
  \section a Things to do
-
- 1. Complete dfa.next_key()\n
-    -currently basic functionality works\n
-    -still have to go through and fix memory leeks (they're there)\n
-    -still need panic mode\n
- 2. get the symbol and put in table.\n 
-    -do this in lexer() func\n 
-    -read each symbol to file\n 
-    -put in some kind of storage, linked list adding a next pointer to symbol struct?? (do this later)\n
- 3. impliment some command line options as described in "Use" section\n
-    
- 4. impliment panic mode\n
-    -look up what panic mode is\n
- 5. if I feel like it\n
-    -let underscores be in variables (change in token table)\n
+ <pre>
+ 1. Complete dfa.next_key()
+    -go over and check mem leaks
+    -give each symbol an integer reference so i can easily compare tokens without str_cpm
+ 2. impliment grammar
+    -create the LL(0) table, do I need to split every expression so that it doesn't have an "|" other than epsilon?
+    -create strcture to hold LL(0) table in code, and structure to hold the 
+    -create func to traverse the LL(0) table and the stack that is used for that
+ 3. impliment some command line options as described in "Use" section
+ </pre>
 
  \section . My problems with language specifications
 
@@ -59,40 +54,43 @@
 
  \section . Grammar
  <pre>
-    S           := <exp>;
-    <exp>       := <dec> | <set> | <func-dec> | <func> 
-    <exp>       := <branch> | <loop> | <return> | <print>
+ notes: <word> denotes symbol, capital letter & {word} denotes grammar
+    S           := {exp} <semi-col>
+    {exp}       := {dec} | {set} | {func-dec} | {func} 
+    {exp}       := {branch} | {loop} | {return} | {print}
 
-    <type>      := int | double | <var>
-    <item>      := <bool> | <int> | <var> | <func>
-    <op>        := + | - | * | / | % | < | > | >= | <= | <> | == | and | or
+    {type}      := <kw-int> | <kw-double> | <var>
+    {item}      := <bool> | <int> | <var> | {func}
+    {op}        := + | - | * | / | % | < | > | >= | <= | <> | == | and | or
 
-    <equ>       := A <equ'>
-    <equ'>      := <op> A <equ'> | eps
-    A           := <item> | not <equ> | ( <equ> )
+    {arr-index} := [ <int> ] | eps
 
-    <dec>       := <type> <var> = <item>
-    <dec>       := <type> <var> <dec'>
-    <dec'>      := , <var> <dec'> | eps    
+    {equ}       := A {equ'}
+    {equ'}      := {op} A {equ'} | eps
+    A           := {item} | not {equ} | ( {equ} )
 
-    <set>       := <var> = <item>
+    {dec}       := {type} <var> = {item}
+    {dec}       := {type} <var> {arr-index} {dec'}
+    {dec'}      := , <var> {dec'} | eps    
 
-    <func-dec>  := def <var> ( B ) S fed | def <type> <var> ( B ) S fed
-    B           := <type> B' | eps
-    B'          := , <type> B' | eps
+    {set}       := <var> {arr-index} = {item}
 
-    <func>      := <var> ( C )
-    C           := <equ> C' | eps
-    C'          := , <equ> C' |eps
+    {func-dec}  := def <var> ( B ) S fed | def {type} <var> ( B ) S fed
+    B           := {type} B' | eps
+    B'          := , {type} B' | eps
 
-    <branch>    := if ( <equ> ) then S D fi
-    D           := else if ( <equ> ) then S D | else S | eps
+    {func}      := <var> ( C )
+    C           := {equ} C' | eps
+    C'          := , {equ} C' |eps
 
-    <loop>      := while ( <equ> ) do S od
+    {branch}    := if ( {equ} ) then S D fi
+    D           := else if ( {equ} ) then S D | else S | eps
 
-    <return>    := return <equ>
+    {loop}      := while ( {equ} ) do S od
 
-    <print>     := print ( <equ> )    
+    {return}    := return {equ}
+
+    {print}     := print ( {equ} )    
 
  </pre>
 */
@@ -123,8 +121,6 @@ Symbol *lexer(FILE *code_fh){
     int hold = 0;
     int *buff_select = &hold;
     bool end = false;
-
-    char sym_out[60];
     
     int line_num = 1;
     int hold2 = 0;
@@ -170,12 +166,7 @@ Symbol *lexer(FILE *code_fh){
             cur_sym->char_num = char_num_start;
 
             if (*(cur_sym->lexeme) != '\0'){
-                sprintf(sym_out, "<%s>", cur_sym->lexeme);
-                fprintf(SYMBOL_FH, "line: %-4d char: %-3d lex: %-13s token: <%s>\n", 
-                        cur_sym->line_num, 
-                        cur_sym->char_num, 
-                        sym_out, 
-                        cur_sym->token);
+                pr_symbol(SYMBOL_FH, cur_sym);
             }
         }        
         //swap and read in buffer if curr has noved to the next buffer
@@ -201,11 +192,7 @@ void grammar(Symbol *root){
     Symbol *cur_sym = root;
 
     while (cur_sym != NULL){
-        printf("line: %-4d char: %-3d lex: <%s> token: <%s>\n", 
-                        cur_sym->line_num, 
-                        cur_sym->char_num, 
-                        cur_sym->lexeme, 
-                        cur_sym->token);
+        pr_symbol(stdout, cur_sym);
         cur_sym = cur_sym->next;
     }
 }
