@@ -138,6 +138,7 @@ Symbol *lexer(FILE *code_fh){
     buff[1][num_read] = '\0';
 
     while (!end){
+        
         if (**curr == '\0'){
             if ( ((int)*curr - (int)&(buff[0][0]) + 1) == (BUFF_SIZE*2)){
                 *curr = &(buff[0][0]);
@@ -158,14 +159,16 @@ Symbol *lexer(FILE *code_fh){
             if (root_sym == NULL){
                 root_sym = next_key(dfa, &(buff[0][0]), curr, line_num, char_num);
                 cur_sym = root_sym;
+                
             }else{
                 cur_sym->next = next_key(dfa, &(buff[0][0]), curr, line_num, char_num);
                 cur_sym = cur_sym->next;
             }
+            
             cur_sym->line_num = line_num;
             cur_sym->char_num = char_num_start;
-
-            if (*(cur_sym->lexeme) != '\0'){
+            
+            if (cur_sym->token != err){
                 pr_symbol(SYMBOL_FH, cur_sym);
             }
         }        

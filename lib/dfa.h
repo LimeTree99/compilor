@@ -10,17 +10,16 @@
 
 struct Dfa{
     int *token_table;
-    char **node_lex;  //if '\0' then not a final node (panic mode)
+    enum Token *node_token;  //if 0 then not a final node (panic mode)
     int num_nodes;
     int max_nodes;
 }Dfa;
 
 typedef struct Symbol{
-    char *token;    //!< Assigned name of symbol
+    enum Token token;    //!< Assigned name of symbol
     char *lexeme;   //!< Name of found key as is writen in source
     int line_num;   //!< Line that the token appears at
     int char_num;   //!< Location of first char of the token in the current line
-    int lex_id;
     struct Symbol *next;
 }Symbol;
 
@@ -65,7 +64,7 @@ Symbol *next_key(struct Dfa *dfa,
 
 void set_node(struct Dfa *dfa, 
               int node, 
-              char *lexeme, 
+              enum Token token, 
               char *link_char[], 
               int link_num[],
               int links_v);

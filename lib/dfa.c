@@ -32,18 +32,18 @@ struct Dfa *generate_lex1(){
                  3,2,1,3,
                  3,1,1};
 
-    char *token[] = {"\0","le","gr","asn",
-                     "eq","le_eq","gr_eq","add",
-                     "sub","mult","div","mod",
-                     "l_round","r_round","l_square","r_square",
-                     "comma","semi_col","end","not_eq",
-                     "var","int","double","double",
-                     "\0","\0","double"};
+    enum Token tokens[] = {err,le,gr,asn,
+                     eq,le_eq,gr_eq,add,
+                     sub,mult,_div,mod,
+                     l_round,r_round,l_square,r_square,
+                     comma,semi_col,end,not_eq,
+                     var,_int,_double,_double,
+                     err,err,_double};
 
     struct Dfa *dfa = dfa_new(num_nodes);
     int l_pos = 0;
     for (int i=0; i < num_nodes; i++){
-        set_node(dfa, i, token[i], (l_char+l_pos), (l_num+l_pos), len[i]);
+        set_node(dfa, i, tokens[i], (l_char+l_pos), (l_num+l_pos), len[i]);
         l_pos += len[i];
     }
     return dfa;   
@@ -55,7 +55,7 @@ struct Dfa *dfa_new(int max_nodes){
     for (int i=0; i < max_nodes * CHARSET_SIZE; i++){
         *(new_dfa->token_table + i) = -1;  //assign the base value of link to -1
     }
-    new_dfa->node_lex = (char **)malloc(sizeof(char *) * max_nodes);
+    new_dfa->node_token = (enum Token*)malloc(sizeof(enum Token) * max_nodes);
     new_dfa->num_nodes = 0;
     new_dfa->max_nodes = max_nodes;
     return new_dfa;
@@ -63,7 +63,7 @@ struct Dfa *dfa_new(int max_nodes){
 
 bool dfa_free(struct Dfa *dfa){
     free(dfa->token_table);
-    free(dfa->node_lex);
+    free(dfa->node_token);
     free(dfa);
     return true;
 }
@@ -77,8 +77,8 @@ Symbol *next_key(struct Dfa *dfa,
     int prev_node = 0;
     int node = 0;
     bool end = false;
-    int token_i = 0;
-    char token[BUFF_SIZE];
+    int lex_i = 0;
+    char lex[BUFF_SIZE];
     Symbol *re_symbol = (Symbol*)malloc(sizeof(Symbol));
 
     int i;
@@ -86,6 +86,8 @@ Symbol *next_key(struct Dfa *dfa,
 
     char *start = *cursor;
     int start_char_num = *char_num;
+
+    
 
     while (!end){
         if (**cursor == '\0'){
@@ -97,11 +99,11 @@ Symbol *next_key(struct Dfa *dfa,
                 *cursor += 1;
             }
         }
-             
+
         prev_node = node;
         node = *(dfa->token_table + (node * CHARSET_SIZE) + **cursor);
 
-        token[token_i] = **cursor;
+        lex[lex_i] = **cursor;
 
         if (node == 0){
             end = true;
@@ -109,33 +111,34 @@ Symbol *next_key(struct Dfa *dfa,
             end = true;
         }else{ 
             *char_num += 1; 
-            token_i++;
+            lex_i++;
             *cursor += 1;
         }
 
     }
-    token[token_i] = '\0';
+    
+    lex[lex_i] = '\0';
 
-    re_symbol->token = str_copy(token);
+    re_symbol->lexeme = str_copy(lex);
 
-    re_symbol->lexeme = str_copy(*(dfa->node_lex + prev_node));
-
-    if ( str_cmp(re_symbol->lexeme, "var") ){
+    re_symbol->token = *(dfa->node_token + prev_node);
+    
+    if ( re_symbol->token == var ){
         //check if variable is of type "keyword"
         i=0;
         end=false;
         while (!end && i < NUM_KEYWORDS){
-            if (str_cmp(token, keywords[i])){
+            if (str_cmp(lex, keywords[i])){
                 free(re_symbol->lexeme);
                 re_symbol->lexeme = str_cat(str_keyw, keywords[i]);
             }
             i++;
         }
-    }else if ( *(re_symbol->lexeme) == '\0'){
+    }else if ( re_symbol->token == err){
         if (*cursor - start > 1){
             fprintf(ERROR_FH, 
                     "Lexical error 'unknown symbol' <%s> at line: %d, char: %d\n", 
-                    re_symbol->token, 
+                    re_symbol->lexeme, 
                     line_num, 
                     *char_num);
 
@@ -152,36 +155,37 @@ Symbol *next_key(struct Dfa *dfa,
                     line_num, 
                     *char_num);
             *cursor += 1;
-            re_symbol->token = false;
-            
+            re_symbol->lexeme = false;   
         }
-
     }
     
     return re_symbol;
-
+    
 }
 
 void pr_symbol(FILE *fh, Symbol *sym){
-    char lex_brac[str_len(sym->lexeme) + 3];
-    sprintf(lex_brac, "<%s>", sym->lexeme);
-    fprintf(fh, "line: %-4d char: %-3d lex: %-13s token: <%s>\n", 
+    char token_brac[str_len(token_names[sym->token]) + 3];
+    sprintf(token_brac, "<%s>", token_names[sym->token]);
+    fprintf(fh, "line: %-4d char: %-3d token: %-13s lex: <%s>\n", 
             sym->line_num, 
             sym->char_num, 
-            lex_brac, 
-            sym->token);
+            token_brac, 
+            sym->lexeme);
+
 }
+
+
 
 //creates dfa node, for use in testing
 void set_node(struct Dfa *dfa, 
               int node, 
-              char *lexeme, 
+              enum Token token, 
               char *link_char[], 
               int link_num[],
               int links_v){
     int *row = dfa->token_table + (node * CHARSET_SIZE);
 
-    *(dfa->node_lex + node) = str_copy(lexeme);
+    *(dfa->node_token + node) = token;
     
     for (int i=0; i<links_v; i++){
 

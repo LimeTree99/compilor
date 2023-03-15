@@ -6,7 +6,12 @@ char *keywords[NUM_KEYWORDS] = {
     "def", "fed", "return", "int", "double", 
     "print"};
 
-char *token_names[] = {
+char *token_names[NUM_TOKENS] = {
+    "err",
+    "kw-if", "kw-then", "kw-else", "kw-fi", "kw-while", 
+    "kw-do", "kw-od", "kw-not", "kw-and", "kw-or", 
+    "kw-def", "kw-fed", "kw-return", "kw-int", "kw-double", 
+    "kw-print",
     "le","gr","asn",
     "eq","le_eq","gr_eq",
     "add","sub","mult",
@@ -14,24 +19,6 @@ char *token_names[] = {
     "r_round","l_square","r_square",
     "comma","semi_col","end",
     "not_eq","var","int",
-    "double",
-    "kw-if", "kw-then", "kw-else", "kw-fi", "kw-while", 
-    "kw-do", "kw-od", "kw-not", "kw-and", "kw-or", 
-    "kw-def", "kw-fed", "kw-return", "kw-int", "kw-double", 
-    "kw-print"
+    "double"
 };
 
-enum token {
-    le, gr, asn,
-    eq, le_eq, gr_eq,
-    add, sub, mult,
-    _div, mod, l_round,
-    r_round, l_square, r_square,
-    comma, semi_col, end, 
-    not_eq, var, _int,
-    _double,
-    kw_if, kw_then, kw_else, kw_fi, kw_while, 
-    kw_do, kw_od, kw_not, kw_and, kw_or, 
-    kw_def, kw_fed, kw_return, kw_int, kw_double, 
-    kw_print
-};
