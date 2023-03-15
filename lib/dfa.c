@@ -122,6 +122,8 @@ Symbol *next_key(struct Dfa *dfa,
     re_symbol->lexeme = str_copy(lex);
 
     re_symbol->token = *(dfa->node_token + prev_node);
+
+    
     
     if ( re_symbol->token == var ){
         //check if variable is of type "keyword"
@@ -146,6 +148,7 @@ Symbol *next_key(struct Dfa *dfa,
 
             *cursor = start;
             *char_num = start_char_num;
+            free(re_symbol);
             re_symbol = next_key(dfa, buff, cursor, line_num, char_num);
         }else{
             //if it is a single unknown char move past it
@@ -158,7 +161,6 @@ Symbol *next_key(struct Dfa *dfa,
             re_symbol->lexeme = false;   
         }
     }
-    
     return re_symbol;
     
 }

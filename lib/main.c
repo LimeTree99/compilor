@@ -157,20 +157,27 @@ Symbol *lexer(FILE *code_fh){
         }else{
             char_num_start = *char_num;
             if (root_sym == NULL){
+                
                 root_sym = next_key(dfa, &(buff[0][0]), curr, line_num, char_num);
+                while (root_sym->token == err){
+                    free(root_sym);
+                    root_sym = next_key(dfa, &(buff[0][0]), curr, line_num, char_num);
+                }
                 cur_sym = root_sym;
                 
             }else{
                 cur_sym->next = next_key(dfa, &(buff[0][0]), curr, line_num, char_num);
-                cur_sym = cur_sym->next;
+                if (cur_sym->next->token == err){
+                    free(cur_sym->next);
+                }else{
+                    cur_sym = cur_sym->next;
+                }
             }
-            
             cur_sym->line_num = line_num;
             cur_sym->char_num = char_num_start;
             
-            if (cur_sym->token != err){
-                pr_symbol(SYMBOL_FH, cur_sym);
-            }
+            pr_symbol(SYMBOL_FH, cur_sym);
+            
         }        
         //swap and read in buffer if curr has noved to the next buffer
         if (*buff_select == 0 && (int)*curr - (int)&(buff[0][0]) >= BUFF_SIZE ||
