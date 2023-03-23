@@ -2,18 +2,41 @@
 
  \section intro_sec Introduction
 
- This is the introduction.
+ Compilor for the EZ language 
 
  \section a Things to do
  <pre>
  1. Complete dfa.next_key()
     -go over and check mem leaks
-    -give each symbol an integer reference so i can easily compare tokens without str_cpm
  2. impliment grammar
-    -create the LL(0) table, do I need to split every expression so that it doesn't have an "|" other than epsilon?
+    -create the LL(0) table: similar to the DFA for x axis of grid is the <token> and 
+        y is the token on the top of the stack. each element of the grid is a grammar struct
+    -grammar struct: a linked list of tokens.
     -create strcture to hold LL(0) table in code, and structure to hold the 
     -create func to traverse the LL(0) table and the stack that is used for that
  3. impliment some command line options as described in "Use" section
+
+ 4. remove left factoring in grammar
+
+ 4. questions to ask
+    -are there ways to organize variables in c in a similar way to python
+        similar to the Name.1var Name.var2 Name.var3 ect. system
+    -should I expand my grammar to that there are no "or" for each phrase 
+    -given the grammar:
+        A -> T | G
+        T -> a B
+        G -> a Q
+        B -> b
+        Q -> q
+        --------------------
+        A -> ab | aq
+        --------------------
+        A -> aT
+        T -> b 
+        T -> q
+
+    should I do this reduction for all of my grammar?
+    I think this is a first/first conflict 
  </pre>
 
  \section . My problems with language specifications
@@ -71,7 +94,7 @@
 
     {dec}       := {type} <var> = {item}
     {dec}       := {type} <var> {arr-index} {dec'}
-    {dec'}      := , <var> {dec'} | eps    
+    {dec'}      := , <var> {dec'} | eps
 
     {set}       := <var> {arr-index} = {item}
 
@@ -202,7 +225,7 @@ void grammar(Symbol *root){
     Symbol *cur_sym = root;
 
     while (cur_sym != NULL){
-        pr_symbol(stdout, cur_sym);
+        //pr_symbol(stdout, cur_sym);
         cur_sym = cur_sym->next;
     }
 }
@@ -217,7 +240,7 @@ int main(int argc, char * argv[]){
 
     code_fh = fopen(argv[argc-1], "r");
     SYMBOL_FH = fopen("io/symbols.txt", "w");
-    //ERROR_FH = fopen("io/error.txt", "w");
+    ERROR_FH = fopen("io/error.txt", "w");
 
     if (!code_fh) error("failed to open file <%s>", argv[argc-1]);
     if (!SYMBOL_FH) SYMBOL_FH = stdout;
@@ -225,6 +248,7 @@ int main(int argc, char * argv[]){
 
     root = lexer(code_fh);
 
+    gen_gram1();
     grammar(root);
 
 

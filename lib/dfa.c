@@ -131,8 +131,7 @@ Symbol *next_key(struct Dfa *dfa,
         end=false;
         while (!end && i < NUM_KEYWORDS){
             if (str_cmp(lex, keywords[i])){
-                free(re_symbol->lexeme);
-                re_symbol->lexeme = str_cat(str_keyw, keywords[i]);
+                re_symbol->token = (enum Token)i+1;
             }
             i++;
         }

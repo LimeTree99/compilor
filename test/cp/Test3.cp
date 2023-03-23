@@ -1,4 +1,4 @@
-double s;
+double ~ s;
 def double f(double x, double y)
 	double a;
 	a=x+y*y;

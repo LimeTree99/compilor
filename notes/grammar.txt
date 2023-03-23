@@ -1,0 +1,112 @@
+notes: <word> denotes symbol, capital letter & {word} denotes grammar
+
+this needs to have left factors removed
+---------------------------------------------------
+S           := {exp} <semi-col>
+{exp}       := {dec} | {set} | {func-dec} | {func} 
+{exp}       := {branch} | {loop} | {return} | {print}
+
+{type}      := <kw-int> | <kw-double> | <var>
+{item}      := <double> | <int> | <var> | {func}
+{op}        := + | - | * | / | % | < | > | >= | <= | <> | == | and | or
+
+{arr-index} := [ {item} ] | eps
+
+{equ}       := A {equ'}
+{equ'}      := {op} A {equ'} | eps
+A           := {item} | not {equ} | ( {equ} )
+
+{dec}       := {type} <var> = {item}
+{dec}       := {type} <var> {arr-index} {dec'}
+{dec'}      := , <var> {dec'} | eps
+
+{set}       := <var> {arr-index} = {item}
+
+{func-dec}  := def <var> ( B ) S fed | def {type} <var> ( B ) S fed
+B           := {type} B' | eps
+B'          := , {type} B' | eps
+
+{func}      := <var> ( C )
+C           := {equ} C' | eps
+C'          := , {equ} C' |eps
+
+{branch}    := if ( {equ} ) then S D fi
+D           := else if ( {equ} ) then S D | else S | eps
+
+{loop}      := while ( {equ} ) do S od
+
+{return}    := return {equ}
+
+{print}     := print ( {equ} )    
+
+
+final grammar:
+----------------------------------------
+
+S           := <kw-int> <var> Z
+S           := <kw-double> <var> Z
+S           := <var> W 
+S           := def X
+S           := if ( {equ} ) then S D fi <semi-col>
+S           := while ( {equ} ) do S od <semi-col>
+S           := return {equ} <semi-col>
+S           := print ( {equ} )  <semi-col>
+
+Z           := <eq> {item} <semi-col>
+Z           := [ {item} ] {dec'} <semi-col>
+Z           := {dec'} <semi-col>
+
+X           := <var> U
+X           := <kw-int> <var> ( B ) S fed <semi-col>
+X           := <kw-double> <var> ( B ) S fed <semi-col>
+
+U           := ( B ) S fed <semi-col>
+U           := <var> ( B ) S fed <semi-col>
+
+W           := ( C ) <semi-col>
+W           := [ {item} ] <eq> {item} <semi-col>
+W           := <eq> {item} <semi-col>
+W           := <var> Z
+
+D           := else E
+D           := eps
+
+E           := if ( {equ} ) then S D
+E           := S
+
+{equ}       := A {equ'}
+
+{equ'}      := {op} A {equ'} 
+{equ'}      := eps
+
+A           := {item} 
+A           := not {equ} 
+A           := ( {equ} )
+
+{type}      := <kw-int> 
+{type}      := <kw-double> 
+{type}      := <var>
+
+{item}      := <double> 
+{item}      := <int> 
+{item}      := <var> V
+
+V           := ( C ) <semi-col>
+V           := eps
+
+{dec'}      := , <var> {dec'} 
+{dec'}      := eps
+
+B           := {type} B' 
+B           := eps
+
+B'          := , {type} B' 
+B'          := eps
+
+C           := {equ} C' 
+C           := eps
+
+C'          := , {equ} C' 
+C'          := eps
+
+{op}        := + | - | * | / | % | < | > | >= | <= | <> | == | and | or

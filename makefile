@@ -1,4 +1,4 @@
-targets := lib/main.c lib/general.c lib/string.c lib/dfa.c lib/build.c
+targets := lib/main.c lib/general.c lib/string.c lib/dfa.c lib/build.c lib/grammar.c
 location := lib/
 
 out := bin/compile.exe
