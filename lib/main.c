@@ -2,7 +2,7 @@
 
  \section intro_sec Introduction
 
- Compilor for the EZ language 
+ Compilor for the EZ language
 
  \section a Things to do
  <pre>
@@ -245,7 +245,7 @@ int main(int argc, char * argv[]){
     if (!code_fh) error("failed to open file <%s>", argv[argc-1]);
     if (!SYMBOL_FH) SYMBOL_FH = stdout;
     if (!ERROR_FH) ERROR_FH = stdout;
-
+    
     root = lexer(code_fh);
 
     gen_gram1();

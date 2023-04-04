@@ -9,6 +9,6 @@ cc := gcc
 
 compile: $(targets)
 	$(cc) $(targets) -o $(out)
-	.\$(out) test/cp/Test4.cp
+	.\$(out) test/cp/Test3.cp
 run5:
 	.\$(out) test/cp/Test5.cp

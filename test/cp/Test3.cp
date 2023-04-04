@@ -1,3 +1,5 @@
+10aaaa
+
 double ~ s;
 def double f(double x, double y)
 	double a;

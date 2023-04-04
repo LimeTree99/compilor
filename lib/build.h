@@ -6,7 +6,7 @@
 
 #define NUM_KEYWORDS 16
 
-#define NUM_TOKENS 39
+#define NUM_TOKENS 42
 
 //! defines a list of all keywords
 char *keywords[NUM_KEYWORDS];
@@ -26,7 +26,7 @@ enum Token {
     r_round, l_square, r_square,
     comma, semi_col, end, 
     not_eq, var, _int,
-    _double
+    _double, eps, err_space, dollar
 }Token;
 
 

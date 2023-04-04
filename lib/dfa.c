@@ -1,13 +1,13 @@
 #include "dfa.h"
 
 struct Dfa *generate_lex1(){
-    int num_nodes = 27;
+    int num_nodes = 28;
     char *l_char[] = {"/d","/w","<",">","=","+","-","*","//","%","(",")","[","]",",",";",".","e",
                       ">","=",
                       "=",
                       "=",
                       "/d","/w","_",
-                      "/d",".",
+                      "/d","/w",".",
                       "/d",
                       "/d","e","E",
                       "/d","+","-",
@@ -18,7 +18,7 @@ struct Dfa *generate_lex1(){
                    6,
                    4,
                    20,20,20,
-                   21,22,
+                   21,27,22,
                    23,
                    23,24,24,
                    26,25,25,
@@ -29,8 +29,8 @@ struct Dfa *generate_lex1(){
                  0,0,0,0,
                  0,0,0,0,
                  0,0,0,0,
-                 3,2,1,3,
-                 3,1,1};
+                 3,3,1,3,
+                 3,1,1,0};
 
     enum Token tokens[] = {err,le,gr,asn,
                      eq,le_eq,gr_eq,add,
@@ -38,14 +38,16 @@ struct Dfa *generate_lex1(){
                      l_round,r_round,l_square,r_square,
                      comma,semi_col,end,not_eq,
                      var,_int,_double,_double,
-                     err,err,_double};
+                     err,err,_double,err_space};
 
+    
     struct Dfa *dfa = dfa_new(num_nodes);
     int l_pos = 0;
     for (int i=0; i < num_nodes; i++){
         set_node(dfa, i, tokens[i], (l_char+l_pos), (l_num+l_pos), len[i]);
         l_pos += len[i];
     }
+    
     return dfa;   
 }
 
@@ -85,10 +87,8 @@ Symbol *next_key(struct Dfa *dfa,
     char str_keyw[] = "kw-";
 
     char *start = *cursor;
-    int start_char_num = *char_num;
-
+    int start_char_num = *char_num;  
     
-
     while (!end){
         if (**cursor == '\0'){
             if ( ((int)*cursor - (int)buff + 1) % BUFF_SIZE != 0 ){
@@ -99,10 +99,10 @@ Symbol *next_key(struct Dfa *dfa,
                 *cursor += 1;
             }
         }
-
+        
         prev_node = node;
         node = *(dfa->token_table + (node * CHARSET_SIZE) + **cursor);
-
+        
         lex[lex_i] = **cursor;
 
         if (node == 0){
@@ -117,13 +117,13 @@ Symbol *next_key(struct Dfa *dfa,
 
     }
     
+    
     lex[lex_i] = '\0';
 
     re_symbol->lexeme = str_copy(lex);
 
     re_symbol->token = *(dfa->node_token + prev_node);
 
-    
     
     if ( re_symbol->token == var ){
         //check if variable is of type "keyword"
@@ -159,6 +159,18 @@ Symbol *next_key(struct Dfa *dfa,
             *cursor += 1;
             re_symbol->lexeme = false;   
         }
+    }else if (re_symbol->token == err_space){
+
+        fprintf(ERROR_FH, 
+                "Lexical error 'add space to' <%s> at line: %d, char: %d\n",
+                re_symbol->lexeme, 
+                line_num, 
+                *char_num);
+        *cursor -= 1;
+        re_symbol->token = _int;
+        //remove the errored '/w' char from the lex
+        *(re_symbol->lexeme + str_len(re_symbol->lexeme) - 1) = '\0';
+        
     }
     return re_symbol;
     

@@ -19,6 +19,6 @@ char *token_names[NUM_TOKENS] = {
     "r_round","l_square","r_square",
     "comma","semi_col","end",
     "not_eq","var","int",
-    "double"
+    "double", "eps", "err_space", "$"
 };
 
