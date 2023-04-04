@@ -4,9 +4,9 @@
 //private func
 void table_addgram(Table *table, Grammar *gram);
 void pr_table(Table *table);
-void grammar_gen_fol(Table *table, Grammar *grammar);
+void grammar_gen_fol(Table *table, int gram);
 void list_append_token(G_node **root, G_node **cur, enum Token add);
-void grammar_gen_fir(Table *table, Grammar *grammar);
+void grammar_gen_fir(Grammar *grammar);
 
 //! Search list for token if found return index, if note return -1
 int list_search(G_node *root, enum Token token);
@@ -25,10 +25,10 @@ void gen_gram1(){
                                 {var, err},
                                 {eps}
                                };
-    Grammar *s_grams[][2] = {{},
-                             {s},
-                             {}
-                            };
+    int s_grams[][2] = {{},
+                         {0},
+                         {}
+                         };
 
     len = 3;
     int sizes[] = {3,
@@ -45,8 +45,8 @@ void gen_gram1(){
     enum Token t_tokens[][5] = {{var,l_round, err, eq,semi_col},
                                 {var, err, eq}
                                };
-    Grammar *t_grams[][2] = {{s},
-                             {s}
+    int t_grams[][2] = {{0},
+                             {0}
                             };
     
     len = 2;
@@ -62,8 +62,8 @@ void gen_gram1(){
     enum Token b_tokens[][5] = {{eq,l_round, err, eq,semi_col},
                                 {eq, err, eq}
                                };
-    Grammar *b_grams[][2] = {{s},
-                             {s}
+    int b_grams[][2] = {{0},
+                             {0}
                             };
     
     len = 2;
@@ -75,11 +75,9 @@ void gen_gram1(){
     }
 
     table_addgram(table, b);
-
     gen_first(table);
     gen_follow(table);
-    pr_table(table);
-    
+    pr_table(table);    
 }
 
 Grammar *grammar_new(int size){
@@ -92,7 +90,7 @@ Grammar *grammar_new(int size){
     return gram;
 }
 
-void grammar_add(Grammar *gram, int len, enum Token tokens[], Grammar *grammars[]){
+void grammar_add(Grammar *gram, int len, enum Token tokens[], int grammars[]){
     G_node *cur;
     int i=0;
     int gram_i=0;
@@ -118,17 +116,18 @@ void grammar_add(Grammar *gram, int len, enum Token tokens[], Grammar *grammars[
             gram_i++;
         }else{
             cur->token = tokens[i];
-            cur->grammar = NULL;
+            cur->grammar = -1;
         }
         i++;
     }
     cur->next = NULL;
     gram->num++;
+    
 }
 
 Table *table_new(int num_grams){
     Table *table = (Table*)malloc(sizeof(Table*));
-    table->grammars = (Grammar**)malloc(sizeof(Grammar*) * num_grams);
+    table->grammars = (Grammar*)malloc(sizeof(Grammar) * num_grams);
     table->max_grammars = num_grams;
     table->num_grammars = 0;
 
@@ -139,7 +138,7 @@ void table_addgram(Table *table, Grammar *gram){
     if (table->max_grammars == table->num_grammars){
         error("Too many grammars, cannot add new grammar to table in: table_addgram()");
     }
-    *(table->grammars + table->num_grammars) = gram;
+    *(table->grammars + table->num_grammars) = *gram;
     table->num_grammars++;
 }
 
@@ -150,12 +149,12 @@ void set_table_row(Table *table){
 
 int gen_first(Table *table){
     for (int i=0; i < table->num_grammars; i++){
-        grammar_gen_fir(table, *(table->grammars + i));
+        grammar_gen_fir((table->grammars + i));
     }
     
 }
 
-void grammar_gen_fir(Table *table, Grammar *grammar){
+void grammar_gen_fir(Grammar *grammar){
     G_node *cur;
     enum Token token;
     
@@ -167,56 +166,52 @@ void grammar_gen_fir(Table *table, Grammar *grammar){
 }
 
 int gen_follow(Table *table){
-    grammar_gen_fol(table, *(table->grammars + 0));
+    grammar_gen_fol(table, 0);
 }
 
-void grammar_gen_fol(Table *table, Grammar *grammar){
-    Grammar *f_gram = grammar;        //the grammar currently being looked through for all follows 
-    Grammar *cur_gram;
+void grammar_gen_fol(Table *table, int gram){
+    Grammar *gram_p = (table->grammars + gram);
     G_node *cur;
 
     G_node *cur_add;
     
-
     //this traverses through the whole table
-    for (int j=0; j < table->num_grammars; j++){    //each grammar in table
-        cur_gram = *(table->grammars + j);
-        for (int i=0; i < cur_gram->num; i++){      //each 'or' in same grammar
-            cur = *(cur_gram->roots + i);
-            while(cur != NULL){                     //each token in grammar
-                if (cur->token == err){ //if it is a grammar
-                    printf("token: %s\n", token_names[cur->token]);
-                    
-                    if (cur->grammar == f_gram){
-                        //found the grammar
-                        //the following value is the one to add
-                        if (cur->next == NULL){
-                            printf("add the follow of cur_gram\n");
-                            //have to add the follow of cur_gram
-                        }else if (cur->next->token == err){
-                            printf("add the first of grammar in cur->next->grammar\n");
-                            //have to add the first of grammar in cur->next->grammar
-                            if (cur->next->grammar == cur_gram){
-                                printf("recursive grammar\n");
-                                //this is a recursive grammar 
-                                //do not make an infinite loop
-                            }else{
-                                printf("find first of this grammar\n");
-                                //find first of this grammar
-                                //non recursive grammar
-                            }
+    
+    for (int i=0; i < gram_p->num; i++){      //each 'or' in same grammar
+        cur = *(gram_p->roots + i);
+        while(cur != NULL){                    //each token in grammar
+            if (cur->token == err){ //if it is a grammar
+                printf("token: %s\n", token_names[cur->token]);
+                
+                if (cur->grammar == gram){
+                    //found the grammar
+                    //the following value is the one to add
+                    if (cur->next == NULL){
+                        printf("add the follow of cur_gram\n");
+                        //have to add the follow of cur_gram
+                    }else if (cur->next->token == err){
+                        printf("add the first of grammar in cur->next->grammar\n");
+                        //have to add the first of grammar in cur->next->grammar
+                        if (cur->next->grammar == gram){
+                            printf("recursive grammar\n");
+                            //this is a recursive grammar 
+                            //do not make an infinite loop
                         }else{
-                            //add next as a follow
-                            list_append_token(&(f_gram->follow), &cur_add, cur->next->token);                          
+                            printf("find first of this grammar\n");
+                            //find first of this grammar
+                            //non recursive grammar
                         }
-                        
+                    }else{
+                        //add next as a follow
+                        list_append_token(&(gram_p->follow), &cur_add, cur->next->token);                          
                     }
+                    
                 }
-
-                cur = cur->next;
             }
+            cur = cur->next;
         }
     }
+    
 }
 
 void list_append_token(G_node **root, G_node **cur, enum Token add){
@@ -251,13 +246,17 @@ void pr_table(Table *table){
     G_node *cur;
     
     for (int j=0; j < table->num_grammars; j++){
-        cur_gram = *(table->grammars + j);
+        cur_gram = (table->grammars + j);
         printf("grammar %d\n", j);
         for (int i=0; i < cur_gram->num; i++){
             cur = *(cur_gram->roots + i);
             printf("\t");
             while(cur != NULL){
-                printf("<%s> ", token_names[cur->token]);
+                if (cur->token == err){
+                    printf("{gram %d} ", cur->grammar);
+                }else{
+                    printf("<%s> ", token_names[cur->token]);
+                }
                 cur = cur->next;
             }
             printf("\n");

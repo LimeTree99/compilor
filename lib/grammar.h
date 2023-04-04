@@ -12,13 +12,13 @@ typedef struct Grammar{
 
 typedef struct G_node{
     enum Token token;       //!< Name of token, if NULL of type Grammar
-    Grammar *grammar;       //!< Link to a grammar, if NULL of type token
+    int grammar;            //!< Index of grammar in table (if token == NULL)
     struct G_node *next;    //!< next G_node in linked list, NULL if end
 }G_node;
 
 typedef struct Table{
     Grammar **table;        //!< A 2D array of pointers to grammars
-    Grammar **grammars;
+    Grammar *grammars;      //!< An array of the grammars
     int num_grammars;
     int max_grammars;
 }Table;
@@ -37,7 +37,7 @@ Grammar *grammar_new(int size);
  \param tokens[] an array of tokens in order of grammar, if NULL then corisponding next grammar[] is added
  \param grammars[] an array of pointers to grammars, if token has a NULL val then the next grammar will be added
 */
-void grammar_add(Grammar *gram, int len, enum Token tokens[], Grammar *grammars[]);
+void grammar_add(Grammar *gram, int len, enum Token tokens[], int grammars[]);
 
 Table *table_new(int num_grams);
 
