@@ -42,7 +42,7 @@ D           := else if ( {equ} ) then S D | else S | eps
 
 final grammar:
 ----------------------------------------
-
+0
 S           := <kw-int> <var> Z
 S           := <kw-double> <var> Z
 S           := <var> W 
@@ -52,61 +52,79 @@ S           := while ( {equ} ) do S od <semi-col>
 S           := return {equ} <semi-col>
 S           := print ( {equ} )  <semi-col>
 
+1
 Z           := <eq> {item} <semi-col>
 Z           := [ {item} ] {dec'} <semi-col>
 Z           := {dec'} <semi-col>
 
+2
 X           := <var> U
 X           := <kw-int> <var> ( B ) S fed <semi-col>
 X           := <kw-double> <var> ( B ) S fed <semi-col>
 
+3
 U           := ( B ) S fed <semi-col>
 U           := <var> ( B ) S fed <semi-col>
 
+4
 W           := ( C ) <semi-col>
 W           := [ {item} ] <eq> {item} <semi-col>
 W           := <eq> {item} <semi-col>
 W           := <var> Z
 
+5
 D           := else E
 D           := eps
 
+6
 E           := if ( {equ} ) then S D
 E           := S
 
+7
 {equ}       := A {equ'}
 
+8
 {equ'}      := {op} A {equ'} 
 {equ'}      := eps
 
+9
 A           := {item} 
 A           := not {equ} 
 A           := ( {equ} )
 
+10
 {type}      := <kw-int> 
 {type}      := <kw-double> 
 {type}      := <var>
 
+11
 {item}      := <double> 
 {item}      := <int> 
 {item}      := <var> V
 
+12
 V           := ( C ) <semi-col>
 V           := eps
 
+13
 {dec'}      := , <var> {dec'} 
 {dec'}      := eps
 
+14
 B           := {type} B' 
 B           := eps
 
+15
 B'          := , {type} B' 
 B'          := eps
 
+16
 C           := {equ} C' 
 C           := eps
 
+17
 C'          := , {equ} C' 
 C'          := eps
 
+18
 {op}        := + | - | * | / | % | < | > | >= | <= | <> | == | and | or
